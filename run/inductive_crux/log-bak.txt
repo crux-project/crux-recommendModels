@@ -1,0 +1,122 @@
+/Users/patrick/Downloads/igcn_cf/data/Crux/time
+{'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/1', 'device': device(type='cpu')}
+init dataset ProcessedDataset
+{'name': 'IGCN', 'embedding_size': 256, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.0, 'feature_ratio': 1.0, 'dataset': <dataset.ProcessedDataset object at 0x13486d960>}
+{'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 0.0, 'aux_reg': 0.01, 'device': device(type='cpu'), 'n_epochs': 100, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [5], 'dataset': <dataset.ProcessedDataset object at 0x13486d960>, 'model': IGCN(
+  (embedding): Embedding(1385, 256)
+)}
+/opt/anaconda3/envs/igcn_cf/lib/python3.10/site-packages/torch/amp/autocast_mode.py:198: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling
+  warnings.warn('User provided device_type of \'cuda\', but CUDA is not available. Disabling')
+Epoch 0/100, Loss: 0.225890, Time: 2.213s
+Validation result. Precision: 31.901%@5, Recall: 95.687%@5, NDCG: 73.400%@5, Time: 0.181s
+Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_73.400.pth
+Epoch 1/100, Loss: 0.114471, Time: 2.292s
+Validation result. Precision: 31.579%@5, Recall: 94.408%@5, NDCG: 72.524%@5, Time: 0.199s
+Epoch 2/100, Loss: 0.069987, Time: 2.311s
+Validation result. Precision: 31.374%@5, Recall: 93.750%@5, NDCG: 70.796%@5, Time: 0.191s
+Epoch 3/100, Loss: 0.047130, Time: 2.343s
+Validation result. Precision: 31.170%@5, Recall: 92.727%@5, NDCG: 71.230%@5, Time: 0.187s
+Epoch 4/100, Loss: 0.033452, Time: 2.324s
+Validation result. Precision: 31.433%@5, Recall: 94.079%@5, NDCG: 72.324%@5, Time: 0.182s
+Epoch 5/100, Loss: 0.025682, Time: 2.260s
+Validation result. Precision: 31.404%@5, Recall: 93.421%@5, NDCG: 71.902%@5, Time: 0.185s
+Epoch 6/100, Loss: 0.021208, Time: 2.146s
+Validation result. Precision: 30.994%@5, Recall: 92.398%@5, NDCG: 71.064%@5, Time: 0.185s
+Epoch 7/100, Loss: 0.017208, Time: 2.148s
+Validation result. Precision: 31.170%@5, Recall: 92.800%@5, NDCG: 71.333%@5, Time: 0.184s
+Epoch 8/100, Loss: 0.014253, Time: 2.152s
+Validation result. Precision: 31.360%@5, Recall: 93.969%@5, NDCG: 72.426%@5, Time: 0.184s
+Epoch 9/100, Loss: 0.011340, Time: 2.125s
+Validation result. Precision: 31.126%@5, Recall: 92.617%@5, NDCG: 71.294%@5, Time: 0.185s
+Epoch 10/100, Loss: 0.011134, Time: 2.142s
+Validation result. Precision: 31.199%@5, Recall: 92.800%@5, NDCG: 71.308%@5, Time: 0.189s
+Epoch 11/100, Loss: 0.009581, Time: 2.141s
+Validation result. Precision: 31.769%@5, Recall: 94.956%@5, NDCG: 72.804%@5, Time: 0.181s
+Epoch 12/100, Loss: 0.009660, Time: 2.186s
+Validation result. Precision: 31.287%@5, Recall: 93.129%@5, NDCG: 71.750%@5, Time: 0.189s
+Epoch 13/100, Loss: 0.007857, Time: 2.169s
+Validation result. Precision: 31.213%@5, Recall: 92.982%@5, NDCG: 72.198%@5, Time: 0.190s
+Epoch 14/100, Loss: 0.007558, Time: 2.167s
+Validation result. Precision: 31.418%@5, Recall: 93.458%@5, NDCG: 71.878%@5, Time: 0.189s
+Epoch 15/100, Loss: 0.007429, Time: 2.180s
+Validation result. Precision: 31.228%@5, Recall: 93.019%@5, NDCG: 70.920%@5, Time: 0.194s
+Epoch 16/100, Loss: 0.007350, Time: 2.191s
+Validation result. Precision: 31.301%@5, Recall: 93.238%@5, NDCG: 71.522%@5, Time: 0.190s
+Epoch 17/100, Loss: 0.006629, Time: 2.193s
+Validation result. Precision: 31.243%@5, Recall: 93.092%@5, NDCG: 71.670%@5, Time: 0.188s
+Epoch 18/100, Loss: 0.006159, Time: 2.181s
+Validation result. Precision: 31.184%@5, Recall: 92.946%@5, NDCG: 71.738%@5, Time: 0.193s
+Epoch 19/100, Loss: 0.005580, Time: 3.739s
+Validation result. Precision: 31.477%@5, Recall: 94.152%@5, NDCG: 72.152%@5, Time: 0.196s
+Epoch 20/100, Loss: 0.004819, Time: 2.175s
+Validation result. Precision: 31.506%@5, Recall: 94.262%@5, NDCG: 72.785%@5, Time: 0.189s
+Epoch 21/100, Loss: 0.004812, Time: 3.031s
+Validation result. Precision: 31.579%@5, Recall: 94.481%@5, NDCG: 72.245%@5, Time: 0.210s
+Epoch 22/100, Loss: 0.004754, Time: 2.247s
+Validation result. Precision: 31.667%@5, Recall: 94.773%@5, NDCG: 72.514%@5, Time: 0.189s
+Epoch 23/100, Loss: 0.004515, Time: 2.205s
+Validation result. Precision: 31.491%@5, Recall: 94.225%@5, NDCG: 72.336%@5, Time: 0.186s
+Epoch 24/100, Loss: 0.004290, Time: 2.189s
+Validation result. Precision: 31.535%@5, Recall: 94.335%@5, NDCG: 72.319%@5, Time: 0.189s
+Epoch 25/100, Loss: 0.004219, Time: 2.203s
+Validation result. Precision: 31.594%@5, Recall: 94.554%@5, NDCG: 72.379%@5, Time: 0.190s
+Epoch 26/100, Loss: 0.004094, Time: 2.316s
+Validation result. Precision: 31.316%@5, Recall: 93.311%@5, NDCG: 71.720%@5, Time: 0.198s
+Epoch 27/100, Loss: 0.003715, Time: 2.242s
+Validation result. Precision: 31.360%@5, Recall: 93.348%@5, NDCG: 71.628%@5, Time: 0.188s
+Epoch 28/100, Loss: 0.003905, Time: 2.386s
+Validation result. Precision: 31.140%@5, Recall: 92.763%@5, NDCG: 71.391%@5, Time: 0.199s
+Epoch 29/100, Loss: 0.003658, Time: 2.285s
+Validation result. Precision: 31.477%@5, Recall: 94.189%@5, NDCG: 72.296%@5, Time: 0.204s
+Epoch 30/100, Loss: 0.003478, Time: 2.194s
+Validation result. Precision: 31.506%@5, Recall: 94.298%@5, NDCG: 72.255%@5, Time: 0.187s
+Epoch 31/100, Loss: 0.003353, Time: 2.337s
+Validation result. Precision: 31.520%@5, Recall: 94.371%@5, NDCG: 71.812%@5, Time: 0.185s
+Epoch 32/100, Loss: 0.003449, Time: 2.190s
+Validation result. Precision: 31.506%@5, Recall: 94.298%@5, NDCG: 72.145%@5, Time: 0.188s
+Epoch 33/100, Loss: 0.003104, Time: 2.186s
+Validation result. Precision: 31.491%@5, Recall: 94.298%@5, NDCG: 71.948%@5, Time: 0.186s
+Epoch 34/100, Loss: 0.003074, Time: 2.291s
+Validation result. Precision: 31.462%@5, Recall: 94.225%@5, NDCG: 72.563%@5, Time: 0.186s
+Epoch 35/100, Loss: 0.003211, Time: 2.174s
+Validation result. Precision: 31.491%@5, Recall: 94.298%@5, NDCG: 71.949%@5, Time: 0.184s
+Epoch 36/100, Loss: 0.003082, Time: 2.189s
+Validation result. Precision: 31.681%@5, Recall: 94.810%@5, NDCG: 72.650%@5, Time: 0.182s
+Epoch 37/100, Loss: 0.002864, Time: 2.264s
+Validation result. Precision: 31.520%@5, Recall: 94.335%@5, NDCG: 72.506%@5, Time: 0.199s
+Epoch 38/100, Loss: 0.003076, Time: 2.155s
+Validation result. Precision: 31.491%@5, Recall: 94.298%@5, NDCG: 71.982%@5, Time: 0.183s
+Epoch 39/100, Loss: 0.002845, Time: 2.424s
+Validation result. Precision: 31.477%@5, Recall: 94.262%@5, NDCG: 72.171%@5, Time: 0.201s
+Epoch 40/100, Loss: 0.002841, Time: 2.277s
+Validation result. Precision: 31.637%@5, Recall: 94.773%@5, NDCG: 72.649%@5, Time: 0.187s
+Epoch 41/100, Loss: 0.002512, Time: 2.281s
+Validation result. Precision: 31.506%@5, Recall: 94.335%@5, NDCG: 72.268%@5, Time: 0.188s
+Epoch 42/100, Loss: 0.002704, Time: 2.273s
+Validation result. Precision: 31.477%@5, Recall: 94.262%@5, NDCG: 72.098%@5, Time: 0.189s
+Epoch 43/100, Loss: 0.002482, Time: 2.806s
+Validation result. Precision: 31.520%@5, Recall: 94.408%@5, NDCG: 72.188%@5, Time: 0.194s
+Epoch 44/100, Loss: 0.002461, Time: 2.232s
+Validation result. Precision: 31.491%@5, Recall: 94.298%@5, NDCG: 72.145%@5, Time: 0.199s
+Epoch 45/100, Loss: 0.002310, Time: 2.139s
+Validation result. Precision: 31.491%@5, Recall: 94.335%@5, NDCG: 72.089%@5, Time: 0.195s
+Epoch 46/100, Loss: 0.002460, Time: 2.148s
+Validation result. Precision: 31.477%@5, Recall: 94.262%@5, NDCG: 72.089%@5, Time: 0.182s
+Epoch 47/100, Loss: 0.002146, Time: 2.134s
+Validation result. Precision: 31.491%@5, Recall: 94.298%@5, NDCG: 72.189%@5, Time: 0.182s
+Epoch 48/100, Loss: 0.002403, Time: 2.132s
+Validation result. Precision: 31.623%@5, Recall: 94.700%@5, NDCG: 72.560%@5, Time: 0.189s
+Epoch 49/100, Loss: 0.002229, Time: 2.177s
+Validation result. Precision: 31.491%@5, Recall: 94.298%@5, NDCG: 72.252%@5, Time: 0.182s
+Epoch 50/100, Loss: 0.002191, Time: 2.211s
+Validation result. Precision: 31.491%@5, Recall: 94.262%@5, NDCG: 72.286%@5, Time: 0.183s
+Early stopping!
+{'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/time', 'device': device(type='cpu')}
+init dataset ProcessedDataset
+Inductive results.
+Traceback (most recent call last):
+  File "/Users/patrick/Downloads/igcn_cf-master/run/inductive_crux.py", line 61, in <module>
+    main()
+  File "/Users/patrick/Downloads/igcn_cf-master/run/inductive_crux.py", line 53, in main
+    trainer.inductive_eval(dataset.n_users, dataset.n_items)
+KeyboardInterrupt
