@@ -1,0 +1,58 @@
+/Users/patrick/Downloads/igcn_cf/data/Crux/time
+{'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/2', 'device': device(type='cpu'), 'data_embed': None, 'model_embed': None}
+init dataset ProcessedDataset
+{'name': 'IGCN', 'embedding_size': 256, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.0, 'feature_ratio': 1.0, 'dataset': <dataset.ProcessedDataset object at 0x13dc74fa0>}
+{'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 0.0, 'aux_reg': 0.01, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x13dc74fa0>, 'model': IGCN(
+  (embedding): Embedding(1385, 256)
+)}
+/opt/anaconda3/envs/igcn_cf/lib/python3.10/site-packages/torch/amp/autocast_mode.py:198: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling
+  warnings.warn('User provided device_type of \'cuda\', but CUDA is not available. Disabling')
+Epoch 0/20, Loss: 0.122157, Time: 21.991s
+Validation result. Precision: 40.278%@3, Recall: 74.525%@3, NDCG: 63.366%@3, Time: 1.449s
+Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_63.366.pth
+Epoch 1/20, Loss: 0.041093, Time: 23.062s
+Validation result. Precision: 38.865%@3, Recall: 72.003%@3, NDCG: 60.893%@3, Time: 1.636s
+Epoch 2/20, Loss: 0.021553, Time: 22.843s
+Validation result. Precision: 39.620%@3, Recall: 73.282%@3, NDCG: 61.652%@3, Time: 1.737s
+Epoch 3/20, Loss: 0.013766, Time: 23.953s
+Validation result. Precision: 39.084%@3, Recall: 72.113%@3, NDCG: 60.911%@3, Time: 1.568s
+Epoch 4/20, Loss: 0.010123, Time: 22.413s
+Validation result. Precision: 40.180%@3, Recall: 74.306%@3, NDCG: 62.235%@3, Time: 1.256s
+Epoch 5/20, Loss: 0.007923, Time: 25.149s
+Validation result. Precision: 39.839%@3, Recall: 73.794%@3, NDCG: 62.043%@3, Time: 1.478s
+Epoch 6/20, Loss: 0.006636, Time: 17.676s
+Validation result. Precision: 38.450%@3, Recall: 71.308%@3, NDCG: 60.415%@3, Time: 0.301s
+Epoch 7/20, Loss: 0.005522, Time: 2.417s
+Validation result. Precision: 39.522%@3, Recall: 73.099%@3, NDCG: 61.732%@3, Time: 0.210s
+Epoch 8/20, Loss: 0.004440, Time: 2.363s
+Validation result. Precision: 39.937%@3, Recall: 73.794%@3, NDCG: 62.026%@3, Time: 0.224s
+Epoch 9/20, Loss: 0.003976, Time: 2.279s
+Validation result. Precision: 39.547%@3, Recall: 73.209%@3, NDCG: 61.950%@3, Time: 0.202s
+Epoch 10/20, Loss: 0.003447, Time: 2.228s
+Validation result. Precision: 39.644%@3, Recall: 73.282%@3, NDCG: 61.797%@3, Time: 0.206s
+Epoch 11/20, Loss: 0.003115, Time: 2.103s
+Validation result. Precision: 39.327%@3, Recall: 72.770%@3, NDCG: 61.699%@3, Time: 0.214s
+Epoch 12/20, Loss: 0.002724, Time: 2.075s
+Validation result. Precision: 39.571%@3, Recall: 73.319%@3, NDCG: 61.804%@3, Time: 0.196s
+Epoch 13/20, Loss: 0.002567, Time: 2.039s
+Validation result. Precision: 39.303%@3, Recall: 72.917%@3, NDCG: 61.846%@3, Time: 0.202s
+Epoch 14/20, Loss: 0.002446, Time: 2.098s
+Validation result. Precision: 39.401%@3, Recall: 73.063%@3, NDCG: 61.947%@3, Time: 0.193s
+Epoch 15/20, Loss: 0.002009, Time: 2.022s
+Validation result. Precision: 39.327%@3, Recall: 72.844%@3, NDCG: 61.761%@3, Time: 0.191s
+Epoch 16/20, Loss: 0.001982, Time: 2.015s
+Validation result. Precision: 39.717%@3, Recall: 73.501%@3, NDCG: 62.221%@3, Time: 0.199s
+Epoch 17/20, Loss: 0.001739, Time: 2.121s
+Validation result. Precision: 39.522%@3, Recall: 73.209%@3, NDCG: 62.212%@3, Time: 0.182s
+Epoch 18/20, Loss: 0.001542, Time: 2.070s
+Validation result. Precision: 39.449%@3, Recall: 73.099%@3, NDCG: 62.140%@3, Time: 0.178s
+Epoch 19/20, Loss: 0.001502, Time: 2.012s
+Validation result. Precision: 39.449%@3, Recall: 73.063%@3, NDCG: 61.840%@3, Time: 0.180s
+{'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/time', 'device': device(type='cpu'), 'data_embed': None, 'model_embed': None}
+init dataset ProcessedDataset
+{'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 0.0, 'aux_reg': 0.01, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x13dc75e70>, 'model': IGCN(
+  (embedding): Embedding(1728, 256)
+)}
+Inductive results.
+All users and all items result. Precision: 55.231%@3, Recall: 94.214%@3, NDCG: 91.503%@3, 
+Inference Time: 0.341s

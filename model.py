@@ -75,6 +75,7 @@ class MF(BasicModel):
 class LightGCN(BasicModel):
     def __init__(self, model_config):
         super(LightGCN, self).__init__(model_config)
+        #A simple lookup table that stores embeddings of a fixed dictionary and size.
         self.embedding_size = model_config['embedding_size']
         self.n_layers = model_config['n_layers']
         self.embedding = nn.Embedding(self.n_users + self.n_items, self.embedding_size)
@@ -238,6 +239,11 @@ class NGCF(BasicModel):
         self.layer_sizes = model_config['layer_sizes'].copy()
         self.embedding = nn.Embedding(self.n_users + self.n_items, self.embedding_size)
         kaiming_uniform_(self.embedding.weight)
+        '''
+        #replace the initial nn.Embedding with exsiting embeddings
+        self.embedding = nn.Embedding(self.n_users + self.n_items, self.embedding_size)
+        kaiming_uniform_(self.embedding.weight)
+        '''
         self.n_layers = len(self.layer_sizes)
         self.layer_sizes.insert(0, self.embedding_size)
         self.gc_layers = []
@@ -361,10 +367,17 @@ class IGCN(BasicModel):
         self.norm_adj = self.generate_graph(model_config['dataset'])
         self.alpha = 1.
         self.delta = model_config.get('delta', 0.99)
-        self.feat_mat, self.user_map, self.item_map, self.row_sum = \
-            self.generate_feat(model_config['dataset'],
-                               ranking_metric=model_config.get('ranking_metric', 'sort'))
+        ###rewrite the generate_feat to consider initial user and item features
+        if model_config['use_feats'] ==True:
+            self.feat_mat, self.user_map, self.item_map, self.row_sum = \
+                self.generate_feat_with_embed(model_config['dataset'],
+                                              ranking_metric=model_config.get('ranking_metric', 'sort'))
+        else:
+            self.feat_mat, self.user_map, self.item_map, self.row_sum = \
+                self.generate_feat(model_config['dataset'],
+                                   ranking_metric=model_config.get('ranking_metric', 'sort'))
         self.update_feat_mat()
+
 
         self.embedding = nn.Embedding(self.feat_mat.shape[1], self.embedding_size)
         self.w = nn.Parameter(torch.ones([self.embedding_size], dtype=torch.float32, device=self.device))
@@ -410,7 +423,7 @@ class IGCN(BasicModel):
                 indices.append([user, user_dim + item_map[item]])
             if user in user_map:
                 indices.append([self.n_users + item, user_map[user]])
-        print(indices[-1])
+
         for user in range(self.n_users):
             indices.append([user, user_dim + item_dim])
         for item in range(self.n_items):
@@ -420,6 +433,75 @@ class IGCN(BasicModel):
         row_sum = torch.tensor(np.array(np.sum(feat, axis=1)).squeeze(), dtype=torch.float32, device=self.device)
         feat = get_sparse_tensor(feat, self.device)
         return feat, user_map, item_map, row_sum
+
+    def generate_feat_with_embed(self, dataset, is_updating=False, ranking_metric=None):
+        if not is_updating:
+            if self.feature_ratio < 1.:
+                ranked_users, ranked_items = graph_rank_nodes(dataset, ranking_metric)
+                core_users = ranked_users[:int(self.n_users * self.feature_ratio)]
+                core_items = ranked_items[:int(self.n_items * self.feature_ratio)]
+            else:
+                core_users = np.arange(self.n_users, dtype=np.int64)
+                core_items = np.arange(self.n_items, dtype=np.int64)
+
+            user_map = dict()
+            for idx, user in enumerate(core_users):
+                user_map[user] = idx
+            item_map = dict()
+            for idx, item in enumerate(core_items):
+                item_map[item] = idx
+        else:
+            user_map = self.user_map
+            item_map = self.item_map
+
+        user_dim, item_dim = len(user_map), len(item_map)
+        ##load the input features from user and item embeddings
+        user_embeds = dataset.data_embed.item()
+        user_embeds_dim = user_embeds[0].shape[0]
+        model_embeds = dataset.model_embed.item()
+        model_embeds_dim = model_embeds[0].shape[0]
+
+        assert user_embeds_dim == model_embeds_dim, "The input model_embeds_dim and user_embed_dim must be the same !!!"
+        user_embeds_dim = 1
+
+        data = []
+        indices = []
+        for user, item in dataset.train_array:
+            if item in item_map:
+                for i in range(user_embeds_dim):
+                    indices.append([user, (user_dim + item_map[item]) * user_embeds_dim + i])
+                    user_r, user_c = [user, i]
+                    #temp =user_embeds.item()[1]
+                    user_embed = user_embeds[user_r][user_c]
+                    item_r, item_c = [item_map[item], i]
+                    model_embed = model_embeds[item_r][item_c]
+                    data.append(user_embed + model_embed)
+            if user in user_map:
+                for i in range(user_embeds_dim):
+                    indices.append([self.n_users + item, user_map[user] * user_embeds_dim + i])
+                    user_r, user_c = [user_map[user], i]
+                    user_embed = user_embeds[user_r][user_c]
+                    item_r, item_c = [item, i]
+                    model_embed = model_embeds[item_r][item_c]
+                    data.append(user_embed + model_embed)
+        for user in range(self.n_users):
+            for i in range(user_embeds_dim):
+                indices.append([user, (user_dim + item_dim)*user_embeds_dim + i])
+                data.append(1)
+        for item in range(self.n_items):
+            for i in range(user_embeds_dim):
+                indices.append([self.n_users + item, (user_dim + item_dim + 1)*user_embeds_dim + i])
+                data.append(1)
+        feat = sp.coo_matrix((data, np.array(indices).T),
+                             shape=(self.n_users + self.n_items, (user_dim + item_dim + 2)*user_embeds_dim), dtype=np.float32).tocsr()
+        row_sum = torch.tensor(np.array(np.sum(feat, axis=1)).squeeze(), dtype=torch.float32, device=self.device)
+        feat = get_sparse_tensor(feat, self.device)
+        return feat, user_map, item_map, row_sum
+
+
+
+
+
 
     def inductive_rep_layer(self, feat_mat):
         padding_tensor = torch.empty([max(self.feat_mat.shape) - self.feat_mat.shape[1], self.embedding_size],

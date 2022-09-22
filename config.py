@@ -165,7 +165,7 @@ def get_amazon_config(device):
                       'test_batch_size': 512, 'topks': [20]}
     amazon_config.append((dataset_config, model_config, trainer_config))
 
-    model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device,
+    model_config = {'name': 'IGCN', 'embedding_size': 256, 'n_layers': 3, 'device': device,
                     'dropout': 0., 'feature_ratio': 1.}
     trainer_config = {'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 1.e-3, 'l2_reg': 0., 'aux_reg': 0.01,
                       'device': device, 'n_epochs': 1000, 'batch_size': 2048, 'dataloader_num_workers': 6,
@@ -208,7 +208,9 @@ def get_amazon_config(device):
 
 def get_crux_config(device):
     dataset_config = {'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/time',
-                      'device': device}
+                      'device': device,
+                      'data_embed':None,
+                      'model_embed':None}
 
     metric_config = {'name': 'metricByUser', 'metric':'F1_score'}
     crux_config = []
@@ -221,12 +223,12 @@ def get_crux_config(device):
 
     model_config = {'name': 'LightGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device}
     trainer_config = {'name': 'BPRTrainer', 'optimizer': 'Adam', 'lr': 1.e-3, 'l2_reg': 1.e-5,
-                      'device': device, 'n_epochs': 1000, 'batch_size': 2048, 'dataloader_num_workers': 6,
-                      'test_batch_size': 512, 'topks': [3]}
-    crux_config.append((dataset_config, model_config, trainer_config))
+                      'device': device, 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0,
+                      'test_batch_size': 100, 'topks': [3]}
+    crux_config.append((dataset_config, model_config, trainer_config, metric_config))
 
-    model_config = {'name': 'IGCN', 'embedding_size': 256, 'n_layers': 3, 'device': device,
-                    'dropout': 0., 'feature_ratio': 1.}
+    model_config = {'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device,
+                    'dropout': 0.3, 'feature_ratio': 1.0, 'use_feats':False}
     trainer_config = {'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 1.e-3, 'l2_reg': 0., 'aux_reg': 0.01,
                       'device': device, 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0,
                       'test_batch_size': 100, 'topks': [3]}
@@ -240,9 +242,9 @@ def get_crux_config(device):
     model_config = {'name': 'NGCF', 'embedding_size': 64, 'layer_sizes': [64, 64, 64],
                     'device': device, 'dropout': 0.3}
     trainer_config = {'name': 'BPRTrainer', 'optimizer': 'Adam', 'lr': 1.e-3, 'l2_reg': 1.e-4,
-                      'device': device, 'n_epochs': 1000, 'batch_size': 2048, 'dataloader_num_workers': 6,
-                      'test_batch_size': 512, 'topks': [20]}
-    crux_config.append((dataset_config, model_config, trainer_config))
+                      'device': device, 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0,
+                      'test_batch_size': 100, 'topks': [7]}
+    crux_config.append((dataset_config, model_config, trainer_config,metric_config))
 
     model_config = {'name': 'MultiVAE', 'layer_sizes': [64, 32],
                     'device': device, 'dropout': 0.7}

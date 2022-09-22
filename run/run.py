@@ -4,7 +4,7 @@ from trainer import get_trainer
 import torch
 from utils import init_run
 from tensorboardX import SummaryWriter
-from config import get_gowalla_config, get_yelp_config, get_amazon_config
+from config import get_gowalla_config, get_yelp_config, get_amazon_config, get_crux_config
 
 
 def main():
@@ -12,7 +12,8 @@ def main():
     init_run(log_path, 2021)
 
     device = torch.device('cuda')
-    config = get_gowalla_config(device)
+    #config = get_gowalla_config(device)
+    config = get_crux_config(device)
     dataset_config, model_config, trainer_config = config[2]
     dataset_config['path'] = dataset_config['path'][:-4] + str(1)
 

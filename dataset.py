@@ -148,6 +148,8 @@ class ProcessedDataset(BasicDataset):
                     os.path.join(dataset_config['path'], 'initial_train.txt'))
                 self.val_data = self.read_data(os.path.join(dataset_config['path'], 'initial_val.txt'))
                 self.test_data = self.read_data(os.path.join(dataset_config['path'], 'initial_test.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
 
             else:
                 self.train_data = self.read_data(
@@ -155,6 +157,8 @@ class ProcessedDataset(BasicDataset):
                 self.val_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_val.txt'))
                 self.test_data= self.read_data(
                     os.path.join(dataset_config['path'], 'inductive_test.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
 
             # self.n_new_users = self.test_ids[-1]+1
         else:
@@ -186,6 +190,10 @@ class ProcessedDataset(BasicDataset):
                 self.n_items = max(self.n_items, max(items) + 1)
             data.append(items)
         return data
+
+    def read_embed(self, file_path):
+        embed = np.load(file_path, allow_pickle=True)
+        return embed
 
 
 class GowallaDataset(BasicDataset):

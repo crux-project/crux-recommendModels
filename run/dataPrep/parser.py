@@ -24,19 +24,26 @@ def read_nodes(file_path):
     model_map = dict()
     n_datas = 0
     n_models = 0
+    data_embed =dict()
+    model_embed = dict()
     for line in lines:
         node_type = int(line.split('\t')[1])
         items = line.split('\t')[:1]
+        embeds = line.split('\t')[2].replace('[','').replace(']','')
+        embeds = np.fromstring(embeds, dtype=float, sep=',')
         if node_type ==1:
             #this is the data type
             #print(items[0])
             data_map[items[0]] = data_id
             datas.append(data_id)
+            data_embed[data_id] =embeds
             data_id +=1
+
         else:
             #this is the model type
             model_map[items[0]] = model_id
             models.append(model_id)
+            model_embed[model_id] = embeds
             model_id+=1
         datas = [int(item) for item in datas]
         models = [int(item) for item in models]
@@ -44,7 +51,7 @@ def read_nodes(file_path):
             n_datas = max(datas) + 1
         if models:
             n_models = max(models) + 1
-    return n_datas, n_models, data_map, model_map, datas, models
+    return n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed
 
 def read_edges(file_path, data_map, model_map,metric):
     edges =[]
@@ -61,7 +68,13 @@ def read_edges(file_path, data_map, model_map,metric):
         model_id = model_map[model_key]
         data_id = data_map[data_key]
         if metric=='f1_score':
-            ranking_metric = metric_list.split(',')[1]
+            ranking_metric = metric_list.split(',')[1].replace(' ','')
+            ranking_metric = float(ranking_metric)
+        if metric=='inference_time':
+            ranking_metric = metric_list.split(',')[0].replace('[','').replace(']','')
+            ranking_metric = float(ranking_metric)
+        if metric=='cosine_similarity':
+            ranking_metric = metric_list.split(',')[4].replace(' ','')
             ranking_metric = float(ranking_metric)
         edges_array[start_row_index]= [data_id, model_id, ranking_metric]
         #edges.append([data_id, model_id])
@@ -73,18 +86,32 @@ def read_edges(file_path, data_map, model_map,metric):
         threshold_f1_score = 0.5
         selected_rows_idx = edges_array[:,2]>threshold_f1_score
         edges_array = edges_array[selected_rows_idx]
+    if metric == 'inference_time':
+        print('only keep the 90% inference_time that is the fastest')
+        threshold_inference_time = edges_array[int(edges_array.shape[0]*0.1),2]
+        selected_rows_idx = edges_array[:,2]<=threshold_inference_time
+        edge_array = edges_array[selected_rows_idx]
+    if metric == 'cosine_similarity':
+        threshold_f1_score = 0.5
+        selected_rows_idx = edges_array[:, 2] > threshold_f1_score
+        edges_array = edges_array[selected_rows_idx]
+
     edges= np.array(edges_array[:,:2], dtype=int)
     return edges
 
 
 
 
-
-input_file_path = os.path.join('../../data/crux_raw', 'node.txt')
-n_datas, n_models, data_map, model_map, datas, models = read_nodes(input_file_path)
-input_edge_path = os.path.join('../../data/crux_raw', 'edge.txt')
+random_state=5
+input_file_path = os.path.join('../../data/crux_final_raw', 'node.txt')
+n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed = read_nodes(input_file_path)
+input_edge_path = os.path.join('../../data/crux_final_raw', 'edge.txt')
 ##user selects the F-1 score metric
-user_selected_metric = 'f1_score'
+#user_selected_metric = 'f1_score'
+##user selects the running time score metric
+#user_selected_metric = 'inference_time'
+user_selected_metric = 'cosine_similarity'
+
 sampling_ratio = 0.8
 edges = read_edges(input_edge_path, data_map, model_map,user_selected_metric)
 
@@ -101,8 +128,8 @@ for i in range(indices.shape[0]-1):
     if model_pairs_with_same_data_id.shape[0]<3:
         continue
     else:
-        train_split, test_split = train_test_split(model_pairs_with_same_data_id , test_size=0.2, random_state=2)
-        train_split, val_split= train_test_split(train_split, test_size=0.25, random_state=2)
+        train_split, test_split = train_test_split(model_pairs_with_same_data_id , test_size=0.2, random_state=random_state)
+        train_split, val_split= train_test_split(train_split, test_size=0.25, random_state=random_state)
         train_edges = np.concatenate((train_edges, train_split), axis=0)
         val_edges = np.concatenate((val_edges,val_split),axis =0)
         test_edges = np.concatenate((test_edges, test_split), axis =0)
@@ -276,6 +303,7 @@ test_edge_list=sorted(test_edge_list, key=lambda x:x[0])
 
 print("the largest id is %d"%start)
 '''
+###add logic to save node embeddings
 
 
 
@@ -418,6 +446,22 @@ for items in sampled_test_edge_list:
             f.write(str(items[i]))
     f.write('\n')
 f.close()
+
+###save the data_embedding and model_embedding with numpy
+
+output_data_embed_file_path = os.path.join('../../data/crux/time','data_embed.npy')
+np.save(output_data_embed_file_path,data_embed)
+
+##save data_map
+output_data_map_file_path = os.path.join('../../data/crux/time','data_map.npy')
+np.save(output_data_map_file_path,data_map)
+
+##save model_map
+output_model_map_file_path = os.path.join('../../data/crux/time','model_map.npy')
+np.save(output_model_map_file_path,model_map)
+
+output_model_embed_file_path = os.path.join('../../data/crux/time','model_embed.npy')
+np.save(output_model_embed_file_path,model_embed)
 
 
 print("Finish the parameterized data preparation")

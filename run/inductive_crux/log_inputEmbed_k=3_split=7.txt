@@ -1,0 +1,14 @@
+/Users/patrick/Downloads/igcn_cf/data/Crux/time
+{'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/7', 'device': device(type='cpu'), 'data_embed': None, 'model_embed': None}
+init dataset ProcessedDataset
+{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.3, 'feature_ratio': 1.0, 'use_feats': True, 'dataset': <dataset.ProcessedDataset object at 0x1351950c0>}
+Traceback (most recent call last):
+  File "/Users/patrick/Downloads/igcn_cf-master/crux-recommendModels/run/inductive_crux.py", line 173, in <module>
+    main()
+  File "/Users/patrick/Downloads/igcn_cf-master/crux-recommendModels/run/inductive_crux.py", line 89, in main
+    model = get_model(model_config, dataset)
+  File "/Users/patrick/Downloads/igcn_cf-master/crux-recommendModels/model.py", line 20, in get_model
+    model = model(config)
+  File "/Users/patrick/Downloads/igcn_cf-master/crux-recommendModels/model.py", line 372, in __init__
+    self.generate_feat_with_embed(model_config['dataset'],
+KeyboardInterrupt
