@@ -267,4 +267,12 @@ def get_crux_config(device):
                       'test_batch_size': 512, 'topks': [20]}
 
     crux_config.append((dataset_config, model_config, trainer_config, metric_config))
+
+    model_config = {'name': 'IDCF_LGCN', 'embedding_size': 64, 'n_layers': 3, 'n_headers': 4,
+                    'lgcn_path': '/Users/patrick/Downloads/igcn_cf-master/crux-recommendModels/savedModel/LightGCN.pth', 'device': device}
+    trainer_config = {'name': 'IDCFTrainer', 'optimizer': 'Adam', 'lr': 1.e-3, 'l2_reg': 1.e-4,
+                      'contrastive_reg': 1.e-3, 'device': device, 'n_epochs': 20, 'batch_size': 100,
+                      'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3]}
+
+    crux_config.append((dataset_config, model_config, trainer_config, metric_config))
     return crux_config

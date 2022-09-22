@@ -1,0 +1,72 @@
+/Users/patrick/Downloads/igcn_cf/data/Crux/time
+{'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/7', 'device': device(type='cpu'), 'data_embed': None, 'model_embed': None}
+init dataset ProcessedDataset
+{'name': 'LightGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dataset': <dataset.ProcessedDataset object at 0x13bc49ed0>}
+{'name': 'BPRTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 1e-05, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x13bc49ed0>, 'model': LightGCN(
+  (embedding): Embedding(1644, 64)
+)}
+/opt/anaconda3/envs/igcn_cf/lib/python3.10/site-packages/torch/amp/autocast_mode.py:198: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling
+  warnings.warn('User provided device_type of \'cuda\', but CUDA is not available. Disabling')
+Epoch 0/20, Loss: 0.657104, Time: 0.791s
+Validation result. Precision: 36.829%@3, Recall: 65.042%@3, NDCG: 56.921%@3, Time: 0.066s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_56.921.pth
+Epoch 1/20, Loss: 0.462510, Time: 0.737s
+Validation result. Precision: 36.685%@3, Recall: 64.569%@3, NDCG: 56.745%@3, Time: 0.063s
+Epoch 2/20, Loss: 0.348546, Time: 0.729s
+Validation result. Precision: 36.665%@3, Recall: 64.579%@3, NDCG: 56.861%@3, Time: 0.064s
+Epoch 3/20, Loss: 0.323026, Time: 0.731s
+Validation result. Precision: 36.870%@3, Recall: 64.867%@3, NDCG: 57.171%@3, Time: 0.063s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_57.171.pth
+Epoch 4/20, Loss: 0.302371, Time: 0.730s
+Validation result. Precision: 36.932%@3, Recall: 65.011%@3, NDCG: 57.271%@3, Time: 0.063s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_57.271.pth
+Epoch 5/20, Loss: 0.293148, Time: 0.757s
+Validation result. Precision: 37.179%@3, Recall: 65.536%@3, NDCG: 57.506%@3, Time: 0.069s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_57.506.pth
+Epoch 6/20, Loss: 0.277157, Time: 0.797s
+Validation result. Precision: 37.631%@3, Recall: 66.492%@3, NDCG: 58.102%@3, Time: 0.069s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_58.102.pth
+Epoch 7/20, Loss: 0.267094, Time: 1.030s
+Validation result. Precision: 38.083%@3, Recall: 67.458%@3, NDCG: 58.750%@3, Time: 0.066s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_58.750.pth
+Epoch 8/20, Loss: 0.255070, Time: 0.838s
+Validation result. Precision: 38.371%@3, Recall: 67.952%@3, NDCG: 58.968%@3, Time: 0.069s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_58.968.pth
+Epoch 9/20, Loss: 0.238592, Time: 0.805s
+Validation result. Precision: 38.742%@3, Recall: 68.795%@3, NDCG: 59.312%@3, Time: 0.070s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_59.312.pth
+Epoch 10/20, Loss: 0.238646, Time: 0.792s
+Validation result. Precision: 38.618%@3, Recall: 68.600%@3, NDCG: 59.272%@3, Time: 0.064s
+Epoch 11/20, Loss: 0.226019, Time: 0.782s
+Validation result. Precision: 38.783%@3, Recall: 69.011%@3, NDCG: 59.312%@3, Time: 0.064s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_59.312.pth
+Epoch 12/20, Loss: 0.215950, Time: 0.733s
+Validation result. Precision: 39.112%@3, Recall: 69.648%@3, NDCG: 59.775%@3, Time: 0.063s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_59.775.pth
+Epoch 13/20, Loss: 0.209672, Time: 0.740s
+Validation result. Precision: 39.173%@3, Recall: 69.628%@3, NDCG: 60.006%@3, Time: 0.075s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_60.006.pth
+Epoch 14/20, Loss: 0.203176, Time: 0.739s
+Validation result. Precision: 39.543%@3, Recall: 70.060%@3, NDCG: 60.526%@3, Time: 0.064s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_60.526.pth
+Epoch 15/20, Loss: 0.197678, Time: 0.734s
+Validation result. Precision: 39.441%@3, Recall: 69.905%@3, NDCG: 60.568%@3, Time: 0.063s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_60.568.pth
+Epoch 16/20, Loss: 0.191535, Time: 0.737s
+Validation result. Precision: 39.626%@3, Recall: 70.173%@3, NDCG: 60.613%@3, Time: 0.063s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_60.613.pth
+Epoch 17/20, Loss: 0.189098, Time: 0.753s
+Validation result. Precision: 39.729%@3, Recall: 70.389%@3, NDCG: 60.816%@3, Time: 0.073s
+Best NDCG, save model to checkpoints/LightGCN_BPRTrainer_ProcessedDataset_60.816.pth
+Epoch 18/20, Loss: 0.166405, Time: 0.742s
+Validation result. Precision: 39.646%@3, Recall: 70.286%@3, NDCG: 60.767%@3, Time: 0.072s
+Epoch 19/20, Loss: 0.175287, Time: 0.752s
+Validation result. Precision: 39.564%@3, Recall: 70.049%@3, NDCG: 60.392%@3, Time: 0.063s
+{'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/time', 'device': device(type='cpu'), 'data_embed': None, 'model_embed': None}
+init dataset ProcessedDataset
+{'name': 'BPRTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 1e-05, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x13bc4b850>, 'model': LightGCN(
+  (embedding): Embedding(2050, 64)
+)}
+Inductive results.
+All users and all items result. Precision: 57.474%@3, Recall: 88.818%@3, NDCG: 88.227%@3, 
+Inference Time: 0.101s

@@ -1,64 +1,107 @@
 /Users/patrick/Downloads/igcn_cf/data/Crux/time
 {'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/7', 'device': device(type='cpu'), 'data_embed': None, 'model_embed': None}
 init dataset ProcessedDataset
-{'name': 'IGCN', 'embedding_size': 64, 'n_layers': 3, 'device': device(type='cpu'), 'dropout': 0.3, 'feature_ratio': 1.0, 'use_feats': False, 'dataset': <dataset.ProcessedDataset object at 0x1329a1870>}
-{'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 0.0, 'aux_reg': 0.01, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x1329a1870>, 'model': IGCN(
-  (embedding): Embedding(1646, 64)
+{'name': 'IDCF_LGCN', 'embedding_size': 64, 'n_layers': 3, 'n_headers': 4, 'lgcn_path': '/Users/patrick/Downloads/igcn_cf-master/crux-recommendModels/savedModel/LightGCN.pth', 'device': device(type='cpu'), 'dataset': <dataset.ProcessedDataset object at 0x13a9da470>}
+{'name': 'IDCFTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 0.0001, 'contrastive_reg': 0.001, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x13a9da470>, 'model': IDCF_LGCN(
+  (embedding): Embedding(1644, 64)
+  (gat_units): ModuleList(
+    (0): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+    (1): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+    (2): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+    (3): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+  )
+  (w_out): Linear(in_features=256, out_features=64, bias=True)
 )}
 /opt/anaconda3/envs/igcn_cf/lib/python3.10/site-packages/torch/amp/autocast_mode.py:198: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling
   warnings.warn('User provided device_type of \'cuda\', but CUDA is not available. Disabling')
-Epoch 0/20, Loss: 0.343910, Time: 1.389s
-Validation result. Precision: 37.220%@3, Recall: 65.649%@3, NDCG: 57.606%@3, Time: 0.101s
-Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_57.606.pth
-Epoch 1/20, Loss: 0.264611, Time: 1.195s
-Validation result. Precision: 38.700%@3, Recall: 68.651%@3, NDCG: 59.621%@3, Time: 0.084s
-Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_59.621.pth
-Epoch 2/20, Loss: 0.205078, Time: 1.195s
-Validation result. Precision: 39.482%@3, Recall: 70.317%@3, NDCG: 60.397%@3, Time: 0.084s
-Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_60.397.pth
-Epoch 3/20, Loss: 0.180916, Time: 1.386s
-Validation result. Precision: 39.400%@3, Recall: 70.204%@3, NDCG: 60.127%@3, Time: 0.088s
-Epoch 4/20, Loss: 0.158516, Time: 1.162s
-Validation result. Precision: 39.852%@3, Recall: 70.985%@3, NDCG: 60.168%@3, Time: 0.090s
-Epoch 5/20, Loss: 0.150773, Time: 1.148s
-Validation result. Precision: 40.160%@3, Recall: 71.530%@3, NDCG: 60.411%@3, Time: 0.086s
-Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_60.411.pth
-Epoch 6/20, Loss: 0.137702, Time: 1.186s
-Validation result. Precision: 40.243%@3, Recall: 71.715%@3, NDCG: 60.978%@3, Time: 0.088s
-Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_60.978.pth
-Epoch 7/20, Loss: 0.127676, Time: 1.139s
-Validation result. Precision: 39.852%@3, Recall: 70.749%@3, NDCG: 60.392%@3, Time: 0.084s
-Epoch 8/20, Loss: 0.124159, Time: 1.199s
-Validation result. Precision: 40.058%@3, Recall: 71.479%@3, NDCG: 60.631%@3, Time: 0.089s
-Epoch 9/20, Loss: 0.110165, Time: 1.158s
-Validation result. Precision: 39.914%@3, Recall: 71.201%@3, NDCG: 60.643%@3, Time: 0.084s
-Epoch 10/20, Loss: 0.107617, Time: 1.157s
-Validation result. Precision: 39.996%@3, Recall: 71.448%@3, NDCG: 60.592%@3, Time: 0.091s
-Epoch 11/20, Loss: 0.101280, Time: 1.168s
-Validation result. Precision: 40.140%@3, Recall: 71.581%@3, NDCG: 60.440%@3, Time: 0.084s
-Epoch 12/20, Loss: 0.097240, Time: 1.154s
-Validation result. Precision: 40.037%@3, Recall: 71.561%@3, NDCG: 61.177%@3, Time: 0.099s
-Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_61.177.pth
-Epoch 13/20, Loss: 0.088879, Time: 1.151s
-Validation result. Precision: 39.831%@3, Recall: 70.975%@3, NDCG: 60.739%@3, Time: 0.091s
-Epoch 14/20, Loss: 0.092669, Time: 1.192s
-Validation result. Precision: 40.016%@3, Recall: 71.273%@3, NDCG: 60.820%@3, Time: 0.099s
-Epoch 15/20, Loss: 0.090450, Time: 1.191s
-Validation result. Precision: 39.914%@3, Recall: 71.242%@3, NDCG: 60.932%@3, Time: 0.091s
-Epoch 16/20, Loss: 0.087153, Time: 1.118s
-Validation result. Precision: 39.893%@3, Recall: 71.232%@3, NDCG: 60.830%@3, Time: 0.086s
-Epoch 17/20, Loss: 0.087737, Time: 1.190s
-Validation result. Precision: 39.811%@3, Recall: 71.026%@3, NDCG: 60.839%@3, Time: 0.087s
-Epoch 18/20, Loss: 0.082858, Time: 1.203s
-Validation result. Precision: 39.893%@3, Recall: 71.078%@3, NDCG: 60.826%@3, Time: 0.087s
-Epoch 19/20, Loss: 0.076690, Time: 1.136s
-Validation result. Precision: 40.140%@3, Recall: 71.849%@3, NDCG: 61.185%@3, Time: 0.091s
-Best NDCG, save model to checkpoints/IGCN_IGCNTrainer_ProcessedDataset_61.185.pth
+Epoch 0/20, Loss: 0.326938, Time: 6.424s
+Validation result. Precision: 33.991%@3, Recall: 56.406%@3, NDCG: 49.906%@3, Time: 0.425s
+Best NDCG, save model to checkpoints/IDCF_LGCN_IDCFTrainer_ProcessedDataset_49.906.pth
+Epoch 1/20, Loss: 0.296737, Time: 6.294s
+Validation result. Precision: 34.382%@3, Recall: 57.351%@3, NDCG: 50.555%@3, Time: 0.465s
+Best NDCG, save model to checkpoints/IDCF_LGCN_IDCFTrainer_ProcessedDataset_50.555.pth
+Epoch 2/20, Loss: 0.296432, Time: 6.268s
+Validation result. Precision: 35.307%@3, Recall: 58.544%@3, NDCG: 51.675%@3, Time: 0.471s
+Best NDCG, save model to checkpoints/IDCF_LGCN_IDCFTrainer_ProcessedDataset_51.675.pth
+Epoch 3/20, Loss: 0.296054, Time: 6.519s
+Validation result. Precision: 35.698%@3, Recall: 59.685%@3, NDCG: 53.298%@3, Time: 0.514s
+Best NDCG, save model to checkpoints/IDCF_LGCN_IDCFTrainer_ProcessedDataset_53.298.pth
+Epoch 4/20, Loss: 0.276643, Time: 6.187s
+Validation result. Precision: 34.814%@3, Recall: 57.732%@3, NDCG: 51.438%@3, Time: 0.407s
+Epoch 5/20, Loss: 0.274508, Time: 5.965s
+Validation result. Precision: 35.534%@3, Recall: 59.727%@3, NDCG: 52.658%@3, Time: 0.407s
+Epoch 6/20, Loss: 0.264608, Time: 5.929s
+Validation result. Precision: 33.703%@3, Recall: 55.624%@3, NDCG: 49.487%@3, Time: 0.412s
+Epoch 7/20, Loss: 0.251820, Time: 5.884s
+Validation result. Precision: 33.169%@3, Recall: 54.082%@3, NDCG: 48.526%@3, Time: 0.449s
+Epoch 8/20, Loss: 0.252639, Time: 5.914s
+Validation result. Precision: 32.243%@3, Recall: 53.105%@3, NDCG: 47.223%@3, Time: 0.408s
+Epoch 9/20, Loss: 0.267971, Time: 5.884s
+Validation result. Precision: 31.709%@3, Recall: 51.676%@3, NDCG: 46.064%@3, Time: 0.402s
+Epoch 10/20, Loss: 0.287146, Time: 5.841s
+Validation result. Precision: 34.238%@3, Recall: 56.488%@3, NDCG: 50.093%@3, Time: 0.399s
+Epoch 11/20, Loss: 0.273832, Time: 5.853s
+Validation result. Precision: 29.652%@3, Recall: 47.964%@3, NDCG: 43.142%@3, Time: 0.413s
+Epoch 12/20, Loss: 0.261305, Time: 5.900s
+Validation result. Precision: 33.683%@3, Recall: 55.017%@3, NDCG: 49.373%@3, Time: 0.407s
+Epoch 13/20, Loss: 0.257942, Time: 5.877s
+Validation result. Precision: 33.909%@3, Recall: 55.912%@3, NDCG: 49.384%@3, Time: 0.402s
+Epoch 14/20, Loss: 0.279008, Time: 5.913s
+Validation result. Precision: 32.367%@3, Recall: 53.198%@3, NDCG: 47.268%@3, Time: 0.406s
+Epoch 15/20, Loss: 0.281286, Time: 5.963s
+Validation result. Precision: 33.457%@3, Recall: 54.678%@3, NDCG: 48.858%@3, Time: 0.404s
+Epoch 16/20, Loss: 0.296859, Time: 5.976s
+Validation result. Precision: 33.416%@3, Recall: 55.490%@3, NDCG: 49.391%@3, Time: 0.407s
+Epoch 17/20, Loss: 0.286339, Time: 5.978s
+Validation result. Precision: 34.876%@3, Recall: 57.115%@3, NDCG: 50.874%@3, Time: 0.409s
+Epoch 18/20, Loss: 0.264220, Time: 6.002s
+Validation result. Precision: 32.799%@3, Recall: 53.290%@3, NDCG: 46.959%@3, Time: 0.411s
+Epoch 19/20, Loss: 0.268976, Time: 5.970s
+Validation result. Precision: 33.333%@3, Recall: 55.172%@3, NDCG: 48.733%@3, Time: 0.412s
 {'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/Crux/time', 'device': device(type='cpu'), 'data_embed': None, 'model_embed': None}
 init dataset ProcessedDataset
-{'name': 'IGCNTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 0.0, 'aux_reg': 0.01, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x132dd6f50>, 'model': IGCN(
-  (embedding): Embedding(1646, 64)
+{'name': 'IDCFTrainer', 'optimizer': 'Adam', 'lr': 0.001, 'l2_reg': 0.0001, 'contrastive_reg': 0.001, 'device': device(type='cpu'), 'n_epochs': 20, 'batch_size': 100, 'dataloader_num_workers': 0, 'test_batch_size': 100, 'topks': [3], 'dataset': <dataset.ProcessedDataset object at 0x13ae6f1c0>, 'model': IDCF_LGCN(
+  (embedding): Embedding(1644, 64)
+  (gat_units): ModuleList(
+    (0): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+    (1): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+    (2): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+    (3): RelationGAT(
+      (wq): Linear(in_features=64, out_features=64, bias=True)
+      (wk): Linear(in_features=64, out_features=64, bias=True)
+      (wv): Linear(in_features=64, out_features=64, bias=True)
+    )
+  )
+  (w_out): Linear(in_features=256, out_features=64, bias=True)
 )}
 Inductive results.
-All users and all items result. Precision: 59.891%@3, Recall: 93.184%@3, NDCG: 92.125%@3, 
-Inference Time: 0.151s
+All users and all items result. Precision: 50.469%@3, Recall: 74.515%@3, NDCG: 73.317%@3, 
+Inference Time: 0.670s

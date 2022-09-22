@@ -78,7 +78,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #config = get_gowalla_config(device)
     config = get_crux_config(device)
-    dataset_config, model_config, trainer_config, metric_config = config[2]
+    dataset_config, model_config, trainer_config, metric_config = config[8]
     #choose the configure file as IGCN
     print(dataset_config['path'])
     #omit the time, change the directory to 'data/chosen_data/1
@@ -165,6 +165,15 @@ def main():
             model.embedding.weight[:dataset.n_users, :] = old_embedding[:dataset.n_users, :]
             model.embedding.weight[new_dataset.n_users:new_dataset.n_users + dataset.n_items, :] = \
                 old_embedding[dataset.n_users:, :]
+        trainer = get_trainer(trainer_config, new_dataset, model)
+        print('Inductive results.')
+        trainer.inductive_eval(dataset.n_users, dataset.n_items)
+        inference_time = time.time() - start_time
+        print('Inference Time: {:.3f}s'.format(inference_time))
+
+    elif model_config['name']== 'IDCF_LGCN':
+        model.norm_adj = model.generate_graph(new_dataset)
+        model.feat_mat = model.generate_feat(new_dataset)
         trainer = get_trainer(trainer_config, new_dataset, model)
         print('Inductive results.')
         trainer.inductive_eval(dataset.n_users, dataset.n_items)
