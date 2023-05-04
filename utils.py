@@ -9,6 +9,31 @@ import networkx as nx
 from sortedcontainers import SortedList
 
 
+def intersection(list1, list2):
+    list3 = [value for value in list1 if value in list2]
+    return list3
+
+def get_exclude_items(n_items,include_item_ids):
+    #n_items = 10
+    #include_item_ids =[2,3,5]
+    '''
+    print(sorted(include_item_ids, reverse=True))
+    items = [*range(0,n_items)]
+    for index in sorted(include_item_ids, reverse=True):
+        if index ==50:
+            print("50 in the box!!")
+        del items[index]
+    assert (len(items)==n_items - len(include_item_ids))
+    print(sorted(items, reverse=True))
+    '''
+    ##this solution can cope with include_item_ids have duplicated include_item_id
+    #print(len(set(include_item_ids)))
+    items = range(n_items)
+    items = [ i for j, i in enumerate(items) if j not in include_item_ids]
+    #print(intersection(items, include_item_ids))
+    return items
+
+
 def set_seed(seed=0):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -91,6 +116,8 @@ def greedy_or_sort(part_adj, u, ranking_metric, device):
 '''
 
 
+
+
 def graph_rank_nodes(dataset, ranking_metric):
     adj_mat = generate_daj_mat(dataset)
     if ranking_metric == 'degree':
@@ -121,6 +148,87 @@ def graph_rank_nodes(dataset, ranking_metric):
     ranked_users = np.argsort(user_metrics)[::-1].copy()
     ranked_items = np.argsort(item_metrics)[::-1].copy()
     return ranked_users, ranked_items
+
+def transform_edge_to_dict(edge_array):
+    edge_list = {}
+    edges_index = edge_array[0][0]
+    data_index = []
+    count =0
+
+    for i in range(edge_array.shape[0]):
+        if edge_array[i][0] == edges_index and count == 0:
+            temp_list = [int(edges_index)]
+            temp_list.append(int(edge_array[i][1]))
+            count += 1
+            data_index.append(edges_index)
+        elif edge_array[i][0] == edges_index and count != 0:
+            temp_list.append(int(edge_array[i][1]))
+            count += 1
+        elif edge_array[i][0] > edges_index:
+            edge_list[int(edges_index)] = temp_list[1:]
+            edges_index = edge_array[i][0]
+            count = 0
+            temp_list = [int(edges_index)]
+            temp_list.append(int(edge_array[i][1]))
+            count += 1
+            data_index.append(edges_index)
+        if i==edge_array.shape[0]-1:
+            edge_list[int(edges_index)] = temp_list[1:]
+    return edge_list
+
+
+
+
+
+
+def transform_edge_list(edge_array, topk):
+    edge_list = {}
+    edges_index = edge_array[0][0]
+
+    count = 0
+    data_index = []
+
+    for i in range(edge_array.shape[0]):
+        if edge_array[i][0] == edges_index and count == 0:
+            temp_list = [int(edges_index)]
+            temp_list.append(int(edge_array[i][1]))
+            count += 1
+            data_index.append(edges_index)
+        elif edge_array[i][0] == edges_index and count != 0:
+            temp_list.append(int(edge_array[i][1]))
+            count += 1
+            if count == topk:
+                edge_list[int(edges_index)]=temp_list[1:]
+        elif edge_array[i][0] > edges_index:
+            #save the earlier edge_list if the earlier model list less than topk
+            edge_list[int(edges_index)] = temp_list[1:]
+            edges_index = edge_array[i][0]
+            count = 0
+            temp_list = [int(edges_index)]
+            temp_list.append(int(edge_array[i][1]))
+            count += 1
+            data_index.append(edges_index)
+            if count  == topk:
+                edge_list[int(edges_index)] = temp_list[1:]
+        if i==edge_array.shape[0]-1:
+            # save the earlier edge_list if the earlier model list less than topk
+            edge_list[int(edges_index)] = temp_list[1:]
+
+    #print(data_index)
+    return edge_list
+
+def check_subset(evaluation_items, items):
+    items.sort()
+    evaluation_items.sort()
+    e_items_set = set(evaluation_items)
+    items_set = set(items)
+    return e_items_set.issubset(items_set)
+
+def check_equalset(evaluation_items, items):
+    e_items_set = set(evaluation_items)
+    items_set = set(items)
+    return e_items_set == items_set
+
 
 
 class AverageMeter:

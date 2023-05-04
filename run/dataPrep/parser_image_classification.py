@@ -103,16 +103,26 @@ def read_edges(file_path, data_map, model_map,metric):
         selected_rows_idx = edges_array[:, 2] > threshold_f1_score
         edges_array = edges_array[selected_rows_idx]
 
-    edges= np.array(edges_array[:,:2], dtype=int)
+    edges= np.array(edges_array[:,:3], dtype=float)
     return edges
 
 
 
 
 random_state=5
-input_file_path = os.path.join('../../data/crux_289data_462models_98257edges', 'node.txt')
-n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed = read_nodes(input_file_path)
-input_edge_path = os.path.join('../../data/crux_289data_462models_98257edges', 'edge.txt')
+#input_file_path = os.path.join('../../data/crux_289data_462models_98257edges', 'node.txt')
+#n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed = read_nodes(input_file_path)
+##generate data_map and model_map
+data_map = dict()
+model_map = dict()
+num_data = 100
+num_model = 691
+for i in range(num_data):
+    data_map[str(i)]=i
+for i in range(num_model):
+    model_map[str(i)]=i
+
+input_edge_path = os.path.join('../../data/material_100data_691models_69100edges', 'edge.txt')
 ##user selects the F-1 score metric
 #user_selected_metric = 'f1_score'
 ##user selects the running time score metric
@@ -123,13 +133,14 @@ user_selected_metric = 'inference_time'
 sampling_ratio = 0.8
 edges = read_edges(input_edge_path, data_map, model_map,user_selected_metric)
 
+
 #for each data, we must make sure it has at least three models
 #rank edges according to data id
 edges= edges[edges[:,0].argsort()]
 data_ids, indices = np.unique(edges[:,0], return_index=True)
-train_edges = np.zeros(shape=(1,2))
-val_edges = np.zeros(shape=(1,2))
-test_edges = np.zeros(shape=(1,2))
+train_edges = np.zeros(shape=(1,3))
+val_edges = np.zeros(shape=(1,3))
+test_edges = np.zeros(shape=(1,3))
 for i in range(indices.shape[0]-1):
     model_pairs_with_same_data_id = edges[indices[i]:indices[i+1],:]
     #check the size of model_pairs_with_same_data_id >=3
@@ -316,7 +327,7 @@ print("the largest id is %d"%start)
 
 
 ##save train_edge_list , val_edge_list, test_edge_list
-output_train_file_path = os.path.join('../../data/crux/output', 'inductive_train.txt')
+output_train_file_path = os.path.join('../../data/material_classification/output', 'inductive_train.txt')
 f=open(output_train_file_path, 'w')
 for items in train_edge_list:
     for i in range(len(items)):
@@ -326,7 +337,7 @@ for items in train_edge_list:
             f.write(str(items[i]))
     f.write('\n')
 f.close()
-output_val_file_path = os.path.join('../../data/crux/output', 'inductive_val.txt')
+output_val_file_path = os.path.join('../../data/material_classification/output', 'inductive_val.txt')
 f=open(output_val_file_path, 'w')
 for items in val_edge_list:
     for i in range(len(items)):
@@ -337,7 +348,7 @@ for items in val_edge_list:
     f.write('\n')
 f.close()
 
-output_test_file_path = os.path.join('../../data/crux/output', 'inductive_test.txt')
+output_test_file_path = os.path.join('../../data/material_classification/output', 'inductive_test.txt')
 f=open(output_test_file_path, 'w')
 for items in test_edge_list:
     for i in range(len(items)):
@@ -423,7 +434,7 @@ for i in range(remaining_test_edges.shape[0]):
             sampled_test_edge_list.append(temp_list)
 
 ##save train_edge_list , val_edge_list, test_edge_list
-output_train_file_path = os.path.join('../../data/crux/output', 'initial_train.txt')
+output_train_file_path = os.path.join('../../data/material_classification/output', 'initial_train.txt')
 f=open(output_train_file_path, 'w')
 for items in sampled_train_edge_list:
     for i in range(len(items)):
@@ -433,7 +444,7 @@ for items in sampled_train_edge_list:
             f.write(str(items[i]))
     f.write('\n')
 f.close()
-output_val_file_path = os.path.join('../../data/crux/output', 'initial_val.txt')
+output_val_file_path = os.path.join('../../data/material_classification/output', 'initial_val.txt')
 f=open(output_val_file_path, 'w')
 for items in sampled_val_edge_list:
     for i in range(len(items)):
@@ -444,7 +455,7 @@ for items in sampled_val_edge_list:
     f.write('\n')
 f.close()
 
-output_test_file_path = os.path.join('../../data/crux/output', 'initial_test.txt')
+output_test_file_path = os.path.join('../../data/material_classification/output', 'initial_test.txt')
 f=open(output_test_file_path, 'w')
 for items in sampled_test_edge_list:
     for i in range(len(items)):

@@ -1,4 +1,0 @@
-
-Inductive results.
-All users and all items result. Precision: 99.229%@3, Recall: 75.189%@3, NDCG: 99.402%@3, 
-Inference Time: 0.419s

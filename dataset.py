@@ -5,6 +5,7 @@ import random
 import sys
 import time
 import json
+import pickle
 
 
 def get_dataset(config):
@@ -61,6 +62,15 @@ class BasicDataset(Dataset):
         self.val_data = None
         self.test_data = None
         self.train_array = None
+        self.test_ground_truth = None
+        self.train_ground_truth =None
+        self.val_ground_truth = None
+        self.test_cutoff_ground_truth =None
+        self.complete_train_data = None
+        self.complete_val_data = None
+        self.complete_test_data = None
+
+
         print('init dataset ' + dataset_config['name'])
 
     def remove_sparse_ui(self, user_inter_sets, item_inter_sets):
@@ -116,6 +126,7 @@ class BasicDataset(Dataset):
     def __len__(self):
         return len(self.train_array)
 
+    '''
     def __getitem__(self, index):
         user = random.randint(0, self.n_users - 1)
         while not self.train_data[user]:
@@ -129,6 +140,30 @@ class BasicDataset(Dataset):
             data_with_negs[idx].append(neg_item)
         data_with_negs = np.array(data_with_negs, dtype=np.int64)
         return data_with_negs
+    '''
+    ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ###~~~~~~need to rewrite __getitem__ method to cope with the new input
+    ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def __getitem__(self, index):
+        user = random.randint(0, self.n_users - 1)
+        while not self.train_data[user]:
+            user = random.randint(0, self.n_users - 1)
+        item = np.random.choice(self.train_data[user])
+        #show the index of item in the complete_train_data
+        index = np.where(self.complete_train_data[user]['models']==item)[0]
+        #print(index)
+        label = self.complete_train_data[user]['performance'][index][0]
+        '''
+        data = [[user, item] for _ in range(self.negative_sample_ratio)]
+        for idx in range(self.negative_sample_ratio):
+            label = self.complete_train_data[user]['performance'][index].tolist()
+            data.append(label)
+        '''
+        data = np.array([[user, item, label]])
+        data[:,:2] = data[:,:2].astype(int)
+        return data
+
+
 
     def output_dataset(self, path):
         if not os.path.exists(path): os.mkdir(path)
@@ -140,16 +175,104 @@ class BasicDataset(Dataset):
 class ProcessedDataset(BasicDataset):
     def __init__(self, dataset_config):
         super(ProcessedDataset, self).__init__(dataset_config)
-        if (dataset_config['path'] != None and 'Crux' in dataset_config['path']):
+        if (dataset_config['path'] != None and 'pka_update' in dataset_config['path']):
             # dataset_config['path'] = "../data/Crux/time"
             # print(os.path.join(dataset_config['path'], 'train.txt'))
-            if 'time' not in dataset_config['path']:
+            if 'inductive' not in dataset_config['path']:
+                self.train_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'initial_train.txt'))
+                self.complete_train_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_train_dict.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'initial_val.txt'))
+                self.complete_val_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_val_dict.txt'))
+                self.test_data = self.read_data(os.path.join(dataset_config['path'], 'initial_test.txt'))
+                self.complete_test_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_test_dict.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                '''
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                '''
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
+
+            else:
+                self.train_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_train.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_val.txt'))
+                self.test_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_test.txt'))
+                self.complete_train_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_train_dict.txt'))
+                self.complete_val_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_val_dict.txt'))
+                self.complete_test_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_test_dict.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                '''
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                '''
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
+
+            # self.n_new_users = self.test_ids[-1]+1
+        elif (dataset_config['path'] != None and 'material_classification' in dataset_config['path']):
+            if 'inductive' not in dataset_config['path']:
+                self.train_data= self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_train.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_val.txt'))
+                self.test_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_test.txt'))
+                #self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                #self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+
+            else:
+                self.train_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_train.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_val.txt'))
+                self.test_data= self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_test.txt'))
+                #self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                #self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+
+        elif (dataset_config['path'] != None and 'material_regression' in dataset_config['path']):
+            if 'recommendation' not in dataset_config['path']:
+                self.train_data= self.read_data(
+                    os.path.join(dataset_config['path'], 'initial_train.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'initial_val.txt'))
+                self.test_data = self.read_data(os.path.join(dataset_config['path'], 'initial_test.txt'))
+                #self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                #self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+
+            else:
+                self.train_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_train.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_val.txt'))
+                self.test_data= self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_test.txt'))
+                #self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                #self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+
+        elif (dataset_config['path'] != None and 'kaggle' in dataset_config['path']):
+            if 'inductive' not in dataset_config['path']:
                 self.train_data= self.read_data(
                     os.path.join(dataset_config['path'], 'initial_train.txt'))
                 self.val_data = self.read_data(os.path.join(dataset_config['path'], 'initial_val.txt'))
                 self.test_data = self.read_data(os.path.join(dataset_config['path'], 'initial_test.txt'))
                 self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
                 self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
 
             else:
                 self.train_data = self.read_data(
@@ -159,8 +282,103 @@ class ProcessedDataset(BasicDataset):
                     os.path.join(dataset_config['path'], 'inductive_test.txt'))
                 self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
                 self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
 
-            # self.n_new_users = self.test_ids[-1]+1
+        elif (dataset_config['path'] != None and 'kag_update' in dataset_config['path']):
+            if 'inductive' not in dataset_config['path']:
+                self.train_data= self.read_data(
+                    os.path.join(dataset_config['path'], 'initial_train.txt'))
+                self.complete_train_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_train_dict.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'initial_val.txt'))
+                self.complete_val_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_val_dict.txt'))
+                self.test_data = self.read_data(os.path.join(dataset_config['path'], 'initial_test.txt'))
+                self.complete_test_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_test_dict.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                '''
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                '''
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
+
+            else:
+                self.train_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_train.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_val.txt'))
+                self.test_data= self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_test.txt'))
+                self.complete_train_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_train_dict.txt'))
+                self.complete_val_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_val_dict.txt'))
+                self.complete_test_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_test_dict.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                '''
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                '''
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
+
+        elif (dataset_config['path'] != None and 'hugging_update' in dataset_config['path']):
+            if 'inductive' not in dataset_config['path']:
+                self.train_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'initial_train.txt'))
+                self.complete_train_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_train_dict.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'initial_val.txt'))
+                self.complete_val_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_val_dict.txt'))
+                self.test_data = self.read_data(os.path.join(dataset_config['path'], 'initial_test.txt'))
+                self.complete_test_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'initial_test_dict.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                '''
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                '''
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
+
+            else:
+                self.train_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_train.txt'))
+                self.val_data = self.read_data(os.path.join(dataset_config['path'], 'inductive_val.txt'))
+                self.test_data = self.read_data(
+                    os.path.join(dataset_config['path'], 'inductive_test.txt'))
+                self.complete_train_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_train_dict.txt'))
+                self.complete_val_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_val_dict.txt'))
+                self.complete_test_data = self.read_data_dicts(
+                    os.path.join(dataset_config['path'], 'inductive_test_dict.txt'))
+                self.data_embed = self.read_embed(os.path.join(dataset_config['path'], 'data_embed.npy'))
+                self.model_embed = self.read_embed(os.path.join(dataset_config['path'], 'model_embed.npy'))
+                '''
+                self.test_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'test_ground_truth.csv'))
+                self.train_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'train_ground_truth.csv'))
+                self.val_ground_truth = self.read_ground_truth(os.path.join(dataset_config['path'], 'valid_ground_truth.csv'))
+                '''
+                self.test_cutoff_ground_truth = self.read_ground_truth(
+                    os.path.join(dataset_config['path'], 'cutoff_ground_truth.csv'))
+
+
         else:
             self.train_data = self.read_data(os.path.join(dataset_config['path'], 'train.txt'))
             self.val_data = self.read_data(os.path.join(dataset_config['path'], 'val.txt'))
@@ -188,13 +406,30 @@ class ProcessedDataset(BasicDataset):
             items = [int(item) for item in items]
             if items:
                 self.n_items = max(self.n_items, max(items) + 1)
+                #self.n_items=700
             data.append(items)
         return data
+
+    def read_data_dicts(selfself, file_path):
+        dict_file = open(file_path, 'rb')
+        data = pickle.loads(dict_file.read())
+        dict_file.close()
+        return data
+
 
     def read_embed(self, file_path):
         embed = np.load(file_path, allow_pickle=True)
         return embed
 
+    def read_ground_truth(self, file_path):
+        ground_truth = np.loadtxt(file_path, delimiter=',')
+        return ground_truth
+
+'''
+class Kag_updateDataset(BasicDataset):
+    def __init__(self, complete_train_data = None):
+        self.complete_train_data = complete_train_data
+'''
 
 class GowallaDataset(BasicDataset):
     def __init__(self, dataset_config):
@@ -295,6 +530,7 @@ class AuxiliaryDataset(BasicDataset):
         self.negative_sample_ratio = 1
         self.train_data = [[] for _ in range(self.n_users)]
         self.length = len(dataset)
+
         for o_user in range(dataset.n_users):
             if o_user in user_map:
                 for o_item in dataset.train_data[o_user]:

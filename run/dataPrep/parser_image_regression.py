@@ -8,8 +8,31 @@ import time
 import json
 import re
 
-
-
+def process_rank_data(edges,top_k):
+    edges = edges[edges[:, 0].argsort()]
+    data_ids, indices = np.unique(edges[:, 0], return_index=True)
+    test_edges = np.zeros(shape=(1, 3))
+    for i in range(indices.shape[0]-1):
+        model_pairs_with_same_data_id = edges[indices[i]:indices[i + 1], :]
+        #if this node hasn't been mapped to more than 40 models
+        if model_pairs_with_same_data_id.shape[0] < top_k:
+            test_edges = np.concatenate((test_edges, model_pairs_with_same_data_id), axis=0)
+            continue
+        else:
+            #print("sort the data-model pairs")
+            selected_rows = model_pairs_with_same_data_id[model_pairs_with_same_data_id[:, 2].argsort()[::-1][:top_k]]
+            test_edges = np.concatenate((test_edges, selected_rows), axis=0)
+    #consider the corner case, the last inidces:
+    last_indice = indices[-1]
+    model_pairs_with_same_data_id = edges[last_indice:, :]
+    if model_pairs_with_same_data_id.shape[0] < top_k:
+        test_edges = np.concatenate((test_edges, model_pairs_with_same_data_id), axis=0)
+    else:
+        # print("sort the data-model pairs")
+        selected_rows = model_pairs_with_same_data_id[model_pairs_with_same_data_id[:, 2].argsort()[::-1][:top_k]]
+        test_edges = np.concatenate((test_edges, selected_rows), axis=0)
+    test_edges = np.delete(test_edges, 0, axis=0)
+    return test_edges
 
 
 def read_nodes(file_path):
@@ -67,17 +90,17 @@ def read_edges(file_path, data_map, model_map,metric):
         #print(model_key)
         model_id = model_map[model_key]
         data_id = data_map[data_key]
-        if metric=='f1_score':
+        if metric=='MAE':
             ranking_metric = metric_list.split(',')[1].replace(' ','')
             ranking_metric = float(ranking_metric)
         if metric=='inference_time':
             ranking_metric = metric_list.split(',')[0].replace('[','').replace(']','')
             ranking_metric = float(ranking_metric)
-        if metric=='cosine_similarity':
-            ranking_metric = metric_list.split(',')[4].replace(' ','')
+        if metric=='MAPE':
+            ranking_metric = metric_list.split(',')[2].replace(' ','')
             ranking_metric = float(ranking_metric)
-        if metric=='Jaccard_similarity':
-            ranking_metric = metric_list.split(',')[5].replace(' ','').replace('[','').replace(']','')
+        if metric=='RMSE':
+            ranking_metric = metric_list.split(',')[3].replace(' ','').replace('[','').replace(']','')
             ranking_metric = float(ranking_metric)
         edges_array[start_row_index]= [data_id, model_id, ranking_metric]
         #edges.append([data_id, model_id])
@@ -85,8 +108,8 @@ def read_edges(file_path, data_map, model_map,metric):
     #rank the edges_array according to the ranking_metric
     sorted_rows_idx= edges_array[:,2].argsort()[::-1]
     edges_array = edges_array[sorted_rows_idx]
-    if metric == 'f1_score':
-        threshold_f1_score = 0.6
+    if metric == 'MAE':
+        threshold_f1_score = 0.15
         selected_rows_idx = edges_array[:,2]>threshold_f1_score
         edges_array = edges_array[selected_rows_idx]
     if metric == 'inference_time':
@@ -103,33 +126,43 @@ def read_edges(file_path, data_map, model_map,metric):
         selected_rows_idx = edges_array[:, 2] > threshold_f1_score
         edges_array = edges_array[selected_rows_idx]
 
-    edges= np.array(edges_array[:,:2], dtype=int)
+    edges= np.array(edges_array[:,:3], dtype=float)
     return edges
 
 
 
 
-random_state=5
-input_file_path = os.path.join('../../data/crux_289data_462models_98257edges', 'node.txt')
-n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed = read_nodes(input_file_path)
-input_edge_path = os.path.join('../../data/crux_289data_462models_98257edges', 'edge.txt')
-##user selects the F-1 score metric
-#user_selected_metric = 'f1_score'
+random_state=3
+#input_file_path = os.path.join('../../data/crux_289data_462models_98257edges', 'node.txt')
+#n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed = read_nodes(input_file_path)
+##generate data_map and model_map
+data_map = dict()
+model_map = dict()
+num_data = 100
+num_model = 700
+for i in range(num_data):
+    data_map[str(i)]=i
+for i in range(num_model):
+    model_map[str(i)]=i
+
+input_edge_path = os.path.join('../../data/material_100data_700models_70000edges', 'edge.txt')
 ##user selects the running time score metric
-user_selected_metric = 'inference_time'
+user_selected_metric = 'MAE'
 #user_selected_metric = 'Jaccard_similarity'
 #user_selected_metric = 'cosine_similarity'
 
 sampling_ratio = 0.8
+#edges starting with [data_id, model_id]
 edges = read_edges(input_edge_path, data_map, model_map,user_selected_metric)
+
 
 #for each data, we must make sure it has at least three models
 #rank edges according to data id
 edges= edges[edges[:,0].argsort()]
 data_ids, indices = np.unique(edges[:,0], return_index=True)
-train_edges = np.zeros(shape=(1,2))
-val_edges = np.zeros(shape=(1,2))
-test_edges = np.zeros(shape=(1,2))
+train_edges = np.zeros(shape=(1,3))
+val_edges = np.zeros(shape=(1,3))
+test_edges = np.zeros(shape=(1,3))
 for i in range(indices.shape[0]-1):
     model_pairs_with_same_data_id = edges[indices[i]:indices[i+1],:]
     #check the size of model_pairs_with_same_data_id >=3
@@ -141,6 +174,17 @@ for i in range(indices.shape[0]-1):
         train_edges = np.concatenate((train_edges, train_split), axis=0)
         val_edges = np.concatenate((val_edges,val_split),axis =0)
         test_edges = np.concatenate((test_edges, test_split), axis =0)
+##consider the corner case, the last data id:
+last_indice = indices[-1]
+model_pairs_with_same_data_id = edges[last_indice:, :]
+if model_pairs_with_same_data_id.shape[0] >=3:
+    train_split, test_split = train_test_split(model_pairs_with_same_data_id, test_size=0.2, random_state=random_state)
+    train_split, val_split = train_test_split(train_split, test_size=0.25, random_state=random_state)
+    train_edges = np.concatenate((train_edges, train_split), axis=0)
+    val_edges = np.concatenate((val_edges, val_split), axis=0)
+    test_edges = np.concatenate((test_edges, test_split), axis=0)
+
+
 
 #remove the dummy header of train_edges, val_edges and test_edges
 train_edges = np.delete(train_edges, 0, axis=0)
@@ -156,6 +200,12 @@ assert(np.array_equal(train_data_ids, val_data_ids))
 assert(np.array_equal(train_data_ids, test_data_ids))
 assert(np.array_equal(val_data_ids, test_data_ids))
 
+##only process test_edges, make sure that for each testing_id we only choose <=top-40 models
+train_top_k =120
+valid_top_k, test_top_k = 40, 40
+train_edges = process_rank_data(train_edges, train_top_k)
+val_edges = process_rank_data(val_edges, valid_top_k)
+test_edges =process_rank_data(test_edges, test_top_k)
 
 ##sort the train_edges, val_edges, and test_edges
 train_edges = train_edges[train_edges[:,0].argsort()]
@@ -187,6 +237,11 @@ remaining_test_data_ids= np.unique(remaining_test_edges[:,0])
 assert(np.array_equal(remaining_train_data_ids, remaining_val_data_ids))
 assert(np.array_equal(remaining_train_data_ids, remaining_test_data_ids))
 assert(np.array_equal(remaining_val_data_ids, remaining_test_data_ids))
+
+##change train_edges to int type
+train_edges = train_edges[:,:2].astype(int)
+val_edges =val_edges[:,:2].astype(int)
+test_edges = test_edges[:,:2].astype(int)
 
 
 train_edge_list=[]
@@ -316,7 +371,7 @@ print("the largest id is %d"%start)
 
 
 ##save train_edge_list , val_edge_list, test_edge_list
-output_train_file_path = os.path.join('../../data/crux/output', 'inductive_train.txt')
+output_train_file_path = os.path.join('../../data/material_regression/output', 'inductive_train.txt')
 f=open(output_train_file_path, 'w')
 for items in train_edge_list:
     for i in range(len(items)):
@@ -326,7 +381,7 @@ for items in train_edge_list:
             f.write(str(items[i]))
     f.write('\n')
 f.close()
-output_val_file_path = os.path.join('../../data/crux/output', 'inductive_val.txt')
+output_val_file_path = os.path.join('../../data/material_regression/output', 'inductive_val.txt')
 f=open(output_val_file_path, 'w')
 for items in val_edge_list:
     for i in range(len(items)):
@@ -337,7 +392,7 @@ for items in val_edge_list:
     f.write('\n')
 f.close()
 
-output_test_file_path = os.path.join('../../data/crux/output', 'inductive_test.txt')
+output_test_file_path = os.path.join('../../data/material_regression/output', 'inductive_test.txt')
 f=open(output_test_file_path, 'w')
 for items in test_edge_list:
     for i in range(len(items)):
@@ -423,7 +478,7 @@ for i in range(remaining_test_edges.shape[0]):
             sampled_test_edge_list.append(temp_list)
 
 ##save train_edge_list , val_edge_list, test_edge_list
-output_train_file_path = os.path.join('../../data/crux/output', 'initial_train.txt')
+output_train_file_path = os.path.join('../../data/material_regression/output', 'initial_train.txt')
 f=open(output_train_file_path, 'w')
 for items in sampled_train_edge_list:
     for i in range(len(items)):
@@ -433,7 +488,7 @@ for items in sampled_train_edge_list:
             f.write(str(items[i]))
     f.write('\n')
 f.close()
-output_val_file_path = os.path.join('../../data/crux/output', 'initial_val.txt')
+output_val_file_path = os.path.join('../../data/material_regression/output', 'initial_val.txt')
 f=open(output_val_file_path, 'w')
 for items in sampled_val_edge_list:
     for i in range(len(items)):
@@ -444,7 +499,7 @@ for items in sampled_val_edge_list:
     f.write('\n')
 f.close()
 
-output_test_file_path = os.path.join('../../data/crux/output', 'initial_test.txt')
+output_test_file_path = os.path.join('../../data/material_regression/output', 'initial_test.txt')
 f=open(output_test_file_path, 'w')
 for items in sampled_test_edge_list:
     for i in range(len(items)):

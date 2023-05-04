@@ -7,7 +7,24 @@ import sys
 import time
 import json
 import re
+import shutil
 
+def write_recommend_ground_truth(input_file_path, output_file_path):
+    print("test")
+
+
+def read_data_node_id(file_path):
+    data_ids =[]
+    data_id_count =0
+    with open(file_path, 'r') as f:
+        lines = f.read().strip().split('\n')
+    for line in lines:
+        data_id = int(line.split(' ')[0])
+        data_ids.append(data_id)
+        if data_id:
+           data_id_count+=1
+    print("There are in total {} in the original split of peak find file".format(data_id_count))
+    return data_ids
 
 
 
@@ -103,7 +120,7 @@ def read_edges(file_path, data_map, model_map,metric):
         selected_rows_idx = edges_array[:, 2] > threshold_f1_score
         edges_array = edges_array[selected_rows_idx]
 
-    edges= np.array(edges_array[:,:2], dtype=int)
+    edges= np.array(edges_array[:,:3], dtype=float)
     return edges
 
 
@@ -114,49 +131,72 @@ input_file_path = os.path.join('../../data/crux_289data_462models_98257edges', '
 n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed = read_nodes(input_file_path)
 input_edge_path = os.path.join('../../data/crux_289data_462models_98257edges', 'edge.txt')
 ##user selects the F-1 score metric
-#user_selected_metric = 'f1_score'
+user_selected_metric = 'f1_score'
 ##user selects the running time score metric
-user_selected_metric = 'inference_time'
+#user_selected_metric = 'inference_time'
 #user_selected_metric = 'Jaccard_similarity'
 #user_selected_metric = 'cosine_similarity'
 
-sampling_ratio = 0.8
+top_k = 60
 edges = read_edges(input_edge_path, data_map, model_map,user_selected_metric)
 
 #for each data, we must make sure it has at least three models
 #rank edges according to data id
 edges= edges[edges[:,0].argsort()]
 data_ids, indices = np.unique(edges[:,0], return_index=True)
-train_edges = np.zeros(shape=(1,2))
+
+train_edges = np.zeros(shape=(1,3))
+'''
 val_edges = np.zeros(shape=(1,2))
 test_edges = np.zeros(shape=(1,2))
+'''
+ground_truth_edges = np.zeros(shape=(1,3))
 for i in range(indices.shape[0]-1):
     model_pairs_with_same_data_id = edges[indices[i]:indices[i+1],:]
     #check the size of model_pairs_with_same_data_id >=3
     if model_pairs_with_same_data_id.shape[0]<3:
         continue
-    else:
-        train_split, test_split = train_test_split(model_pairs_with_same_data_id , test_size=0.2, random_state=random_state)
-        train_split, val_split= train_test_split(train_split, test_size=0.25, random_state=random_state)
+    elif model_pairs_with_same_data_id.shape[0]>=top_k:
+        train_split, test_split = train_test_split(model_pairs_with_same_data_id, test_size=0.2,
+                                                   random_state=random_state)
+        ##sort the model_pairs_with_same_data_id and only keep too-k as ground truth
+        model_pairs_with_same_data_id = model_pairs_with_same_data_id[model_pairs_with_same_data_id[:, 2].argsort()[::-1]][:top_k,:]
+
+        ground_truth_edges =np.concatenate((ground_truth_edges, model_pairs_with_same_data_id),axis=0)
         train_edges = np.concatenate((train_edges, train_split), axis=0)
+        '''
         val_edges = np.concatenate((val_edges,val_split),axis =0)
         test_edges = np.concatenate((test_edges, test_split), axis =0)
+        '''
+    elif 3<=model_pairs_with_same_data_id.shape[0]<top_k:
+        train_split, test_split = train_test_split(model_pairs_with_same_data_id, test_size=0.2,
+                                                   random_state=random_state)
+        ground_truth_edges = np.concatenate((ground_truth_edges, model_pairs_with_same_data_id), axis=0)
+        train_edges = np.concatenate((train_edges, train_split), axis=0)
 
 #remove the dummy header of train_edges, val_edges and test_edges
+ground_truth_edges =np.delete(ground_truth_edges, 0, axis=0)
+
 train_edges = np.delete(train_edges, 0, axis=0)
+'''
 val_edges = np.delete(val_edges, 0, axis=0)
 test_edges = np.delete(test_edges, 0, axis=0)
+'''
 
 #confirm all the data ids are the same
 train_data_ids= np.unique(train_edges[:,0])
+'''
 val_data_ids = np.unique(val_edges[:,0])
 test_data_ids= np.unique(test_edges[:,0])
 
 assert(np.array_equal(train_data_ids, val_data_ids))
 assert(np.array_equal(train_data_ids, test_data_ids))
 assert(np.array_equal(val_data_ids, test_data_ids))
+'''
+ground_truth_data_ids =  np.unique(ground_truth_edges[:,0])
+assert(np.array_equal(train_data_ids, ground_truth_data_ids))
 
-
+'''
 ##sort the train_edges, val_edges, and test_edges
 train_edges = train_edges[train_edges[:,0].argsort()]
 val_edges = val_edges[val_edges[:,0].argsort()]
@@ -263,58 +303,10 @@ for i in range(test_edges.shape[0]):
         count+=1
         if i == test_edges.shape[0] - 1:
             test_edge_list.append(temp_list)
-
-
-
-
 '''
-#check which val_edge_list has issue
-edge_index_check =[]
-for i in range(len(val_edge_list)):
-    edge_index_check.append(val_edge_list[i][0])
-print(edge_index_check)
-for i in range(len(train_data_index)):
-    if train_data_index[i] not in edge_index_check:
-        print(train_data_index[i])
-        #randomly select one edge from edges, use copy to avoid automatic id change
-        val_edge_list.append(train_edge_list[i].copy())
-#sort val_edge_list according to first value
-val_edge_list=sorted(val_edge_list, key=lambda x:x[0])
 
-#need to reindex train and validation users id to make sure that they are consecutive
-index_map = dict()
-start =0
-for index in train_data_index:
-    index_map[index] = start
-    start+=1
-for i in range(len(train_edge_list)):
-    origin_value = train_edge_list[i][0]
-    train_edge_list[i][0] =index_map[origin_value]
-for i in range(len(val_edge_list)):
-    origin_value = val_edge_list[i][0]
-    if origin_value in index_map:
-        val_edge_list[i][0] =index_map[origin_value]
-    else:
-        index_map[origin_value] = start
-        val_edge_list[i][0] = index_map[origin_value]
-        start+=1
-for i in range(len(test_edge_list)):
-    origin_value = test_edge_list[i][0]
-    if origin_value in index_map:
-        test_edge_list[i][0] =index_map[origin_value]
-    else:
-        index_map[origin_value] = start
-        test_edge_list[i][0] = index_map[origin_value]
-        start+=1
-##sort test_edge_list according to first value
-test_edge_list=sorted(test_edge_list, key=lambda x:x[0])
-
-print("the largest id is %d"%start)
 '''
 ###add logic to save node embeddings
-
-
-
 ##save train_edge_list , val_edge_list, test_edge_list
 output_train_file_path = os.path.join('../../data/crux/output', 'inductive_train.txt')
 f=open(output_train_file_path, 'w')
@@ -473,3 +465,54 @@ np.save(output_model_embed_file_path,model_embed)
 
 
 print("Finish the parameterized data preparation")
+'''
+
+###according to inductive-test dataset to determine the kept data node ids and regenerate the recommendation ground truth files
+
+##read the inductive-test split file
+ground_truth_file_path = os.path.join('/Users/patrick/Downloads/igcn_cf/data/crux_final/'+'inductive', 'inductive_test.txt')
+original_split_data_ids=read_data_node_id(ground_truth_file_path)
+original_split_data_ids = np.array(original_split_data_ids)
+assert(np.array_equal(original_split_data_ids, ground_truth_data_ids))
+
+recommendation_edge_list =[]
+recommendation_edges_index = ground_truth_edges[0][0]
+
+count =0
+for i in range(ground_truth_edges.shape[0]):
+    if ground_truth_edges[i][0] == recommendation_edges_index and count==0:
+        temp_list= [int(recommendation_edges_index)]
+        temp_list.append(int(ground_truth_edges[i][1]))
+        count+=1
+    elif ground_truth_edges[i][0] == recommendation_edges_index and count!=0:
+        temp_list.append(int(ground_truth_edges[i][1]))
+        if i==ground_truth_edges.shape[0]-1:
+            recommendation_edge_list.append(temp_list)
+    elif ground_truth_edges[i][0] > recommendation_edges_index:
+        recommendation_edge_list.append(temp_list)
+        recommendation_edges_index = ground_truth_edges[i][0]
+        count =0
+        temp_list = [int(recommendation_edges_index)]
+        temp_list.append(int(ground_truth_edges[i][1]))
+        count+=1
+        if i == ground_truth_edges.shape[0] - 1:
+            recommendation_edge_list.append(temp_list)
+
+#copy the existing inductive training and validation files
+
+
+
+##write to the testing file
+output_test_file_path = os.path.join('/Users/patrick/Downloads/igcn_cf/data/crux_final/'+'recommendation', 'recommendation_peak_finding_test.txt')
+f=open(output_test_file_path, 'w')
+
+for items in recommendation_edge_list:
+    for i in range(len(items)):
+        if i!=len(items)-1:
+            f.write(str(items[i])+ ' ')
+        else:
+            f.write(str(items[i]))
+    f.write('\n')
+f.close()
+
+print("finish generating the recommendation ground truth")
