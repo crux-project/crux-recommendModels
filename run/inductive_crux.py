@@ -16,8 +16,8 @@ def main():
 
     train_start_time = time.time()
     #dataset_name ='kaggle'
-    dataset_name = 'pka_update'
-    #dataset_name = 'kag_update'
+    #dataset_name = 'pka_update'
+    dataset_name = 'kag_update'
     #dataset_name = 'hugging_update'
 
     log_path = __file__[:-3]
@@ -78,19 +78,19 @@ def main():
     #in the inductive setting, we need to consider a new set of training/validation/testing sets
 
     if split < 10:
-        #dataset_config['path'] = dataset_config['path'][:-33]+ str('inductive')+'/table-kag-oracle-report-results'
+        dataset_config['path'] = dataset_config['path'][:-33]+ str('inductive')+'/table-kag-oracle-report-results'
         #dataset_config['path'] = dataset_config['path'][:-20] + str('inductive') + '/sampling_ratio=0.2'
         #dataset_config['path'] = dataset_config['path'][:-11] + str('inductive') + '/ratio_1.0'
         #dataset_config['path'] = dataset_config['path'][:-9] + str('inductive') + '/dummy25'
         #dataset_config['path'] = dataset_config['path'][:-31] + str('inductive') + '/sampling_ratio=1.0/70-probing'
-        dataset_config['path'] = dataset_config['path'][:-1] + str('inductive')
+        #dataset_config['path'] = dataset_config['path'][:-1] + str('inductive')
     else:
-        #dataset_config['path'] = dataset_config['path'][:-34] + str('inductive')+'/table-kag-oracle-report-results'
+        dataset_config['path'] = dataset_config['path'][:-34] + str('inductive')+'/table-kag-oracle-report-results'
         #dataset_config['path'] = dataset_config['path'][:-21] + str('inductive') + '/sampling_ratio=0.2'
         #dataset_config['path'] = dataset_config['path'][:-12] + str('inductive') + '/ratio_1.0'
         #dataset_config['path'] = dataset_config['path'][:-10] + str('inductive') + '/dummy25'
         #dataset_config['path'] = dataset_config['path'][:-32] + str('inductive') + '/sampling_ratio=1.0/70-probing'
-        dataset_config['path'] = dataset_config['path'][:-2] + str('inductive')
+        #dataset_config['path'] = dataset_config['path'][:-2] + str('inductive')
 
     start_time = time.time()
     new_dataset = get_dataset(dataset_config)

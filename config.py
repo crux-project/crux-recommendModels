@@ -547,7 +547,7 @@ def get_kaggle_config(device,split):
 
 
 def get_kag_update_config(device,split):
-    '''
+
     dataset_config = {'name': 'ProcessedDataset', 'path': '/Users/patrick/Downloads/igcn_cf/data/kag_update/'+str(split)+'/table-kag-oracle-report-results',
                       'device': device,
                       'data_embed':None,
@@ -558,6 +558,7 @@ def get_kag_update_config(device,split):
                       'device': device,
                       'data_embed': None,
                       'model_embed': None}
+    '''
 
     metric_config = {'name': 'metricByUser', 'metric':'F1_score'}
     kaggle_config = []

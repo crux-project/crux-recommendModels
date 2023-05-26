@@ -403,7 +403,7 @@ class BasicTrainer:
         '''
 
         ##save the prediction results
-        output_prediction_path = os.path.join('../data/kaggle/output', 'oracle_pred_kaggle.csv')
+        output_prediction_path = os.path.join('../data/prediction/output', 'oracle_pred.csv')
         #prediction_with_ranking = self.save_inductive_recommendations(self.dataset.test_data, output_prediction_path)
         results= self.save_inductive_with_rates_recommend(n_new_items, self.dataset.test_data, output_prediction_path,start_time)
         print('metric 2, New users and all items result. {:.3f}'.format(results))

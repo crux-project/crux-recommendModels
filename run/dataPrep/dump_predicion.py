@@ -3,13 +3,13 @@ import numpy as np
 import pickle
 import pandas as pd
 
-prediction_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'oracle_ratio_0.2.csv')
-#prediction_path = os.path.join('../../data/kaggle/output', 'INMO-GCN.csv')
+#prediction_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'oracle_ratio_0.2.csv')
+prediction_path = os.path.join('../../data/prediction/output', 'oracle_pred.csv')
 #prediction_path = os.path.join('../../data/kaggle/output', 'LightGCN.csv')
 #prediction_path = os.path.join('../../data/kaggle/output', 'IDCF-GCN.csv')
-second_level_data_node_map_path  = os.path.join('../../data/kaggle_ratio_0.2/output', 'second_data_map.txt')
-data_node_map_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'data_map.txt')
-model_node_map_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'model_map.txt')
+second_level_data_node_map_path  = os.path.join('../../data/kaggle/output/table', 'second_data_map.txt')
+data_node_map_path = os.path.join('../../data/kaggle/output/table', 'data_map.txt')
+model_node_map_path = os.path.join('../../data/kaggle/output/table', 'model_map.txt')
 #train_dict_path = os.path.join('../../data/kaggle/output', 'inductive_train_dict.txt')
 
 '''
@@ -50,7 +50,7 @@ df = pd.DataFrame(transformed_prediction, columns=['dataset', 'model','balanced_
 print(df.dtypes)
 df['dataset']=df['dataset'].astype('int')
 df['model']=df['model'].astype('int')
-transformed_pred_path = os.path.join('../../data/kaggle_ratio_0.2/output/final_result', 'oracle_edge_60.csv')
+transformed_pred_path = os.path.join('../../data/kaggle/output/final_result', 'oracle_temp.csv')
 df.to_csv(transformed_pred_path,index=False)
 
 

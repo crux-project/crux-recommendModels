@@ -280,19 +280,19 @@ def read_edges(file_path, data_map, model_map,metric,test_flag=False,threshold_s
 
 
 dataset_path_name ='kaggle'
-total_budget = 70
+total_budget = 50
 #total_budget =  200
 random_state=5
 random_state_2=5
 #input_file_path = os.path.join('../../data/kaggle/graph_split', 'node.txt')
 #input_file_path = os.path.join('../../data/kaggle_partition/graph_split', 'node.txt')
 #input_file_path = os.path.join('../../data/kaggle_ratio_0.2/graph_split', 'node.txt')
-input_file_path = os.path.join('../../data', dataset_path_name, 'graph_split', 'node.txt')
+input_file_path = os.path.join('../../data', dataset_path_name, 'graph_split/table', 'node.txt')
 train_n_datas, train_n_models, data_map, model_map, datas, models, data_embed, model_embed = read_nodes(input_file_path)
 #input_edge_path = os.path.join('../../data/kaggle/graph_split', 'edge.txt')
 #input_edge_path = os.path.join('../../data/kaggle_partition/graph_split', 'edge.txt')
 #input_edge_path = os.path.join('../../data/kaggle_ratio_0.2/graph_split', 'edge_ratio_0.2.txt')
-input_edge_path = os.path.join('../../data', dataset_path_name, 'graph_split', 'edge.txt')
+input_edge_path = os.path.join('../../data', dataset_path_name, 'graph_split/table', 'edge.txt')
 ##user selects the F-1 score metric
 #user_selected_metric = 'f1_score'
 user_selected_metric = 'balanced_accuracy'
@@ -304,13 +304,13 @@ user_selected_metric = 'balanced_accuracy'
 #test_edge_path = os.path.join('../../data/kaggle/graph_split', 'new_edge.txt')
 #test_edge_path = os.path.join('../../data/kaggle_partition/graph_split', 'new_edge.txt')
 #test_edge_path = os.path.join('../../data/kaggle_ratio_0.2/graph_split', 'new_edge.txt')
-test_edge_path = os.path.join('../../data', dataset_path_name, 'graph_split', 'new_edge.txt')
+test_edge_path = os.path.join('../../data', dataset_path_name, 'graph_split/table', 'new_edge.txt')
 #process the new_edge.txt to a csv file:
 #edges = change_to_csv_test_edges(test_edge_path,user_selected_metric)
 #test_node_path = os.path.join('../../data/kaggle/graph_split', 'new_node.txt')
 #test_node_path = os.path.join('../../data/kaggle_partition/graph_split', 'new_node.txt')
 #test_node_path = os.path.join('../../data/kaggle_ratio_0.2/graph_split', 'new_node.txt')
-test_node_path = os.path.join('../../data', dataset_path_name, 'graph_split', 'new_node.txt')
+test_node_path = os.path.join('../../data', dataset_path_name, 'graph_split/table', 'new_node.txt')
 
 n_datas, n_models, data_map, model_map, datas, models, data_embed, model_embed = append_nodes(test_node_path, data_map, model_map,train_n_datas, train_n_models, datas, models, data_embed, model_embed)
 
@@ -336,6 +336,7 @@ edges= edges[edges[:,0].argsort()]
 data_ids, indices = np.unique(edges[:,0], return_index=True)
 if data_ids.shape[0] < n_datas:
     print("Some data ids are missing, we need to regenerate the map to filter such data ids")
+#recording data_ids that are missing due to the prunning process
 removed_ids =[]
 for id in np.arange(n_datas):
     if id not in data_ids:
@@ -493,7 +494,9 @@ for i in range(indices.shape[0]-1):
             second_level_data_map[key] = value
             train_split, val_split = train_test_split(model_pairs_with_same_data_id, test_size=1 - sampling_ratio,
                                                       random_state=random_state)
+            #map the initial data_id as key to be the second_level_map value
             train_split[:,0]  = value
+            #map the initial data_id as key to be the second_level_map value
             val_split[:,0] = value
             train_edges = np.concatenate((train_edges, train_split), axis=0)
             val_split = process_rank_data(val_split, valid_top_k)
@@ -640,21 +643,21 @@ valid_ground_truth = np.delete(valid_ground_truth, 0, axis=0)
 #train_ground_truth_file_path = os.path.join('../../data/kaggle/output','train_ground_truth.csv')
 #train_ground_truth_file_path = os.path.join('../../data/kaggle_partition/output','train_ground_truth.csv')
 #train_ground_truth_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','train_ground_truth.csv')
-train_ground_truth_file_path = os.path.join('../../data', dataset_path_name,'output/70-probing', 'train_ground_truth.csv')
+train_ground_truth_file_path = os.path.join('../../data', dataset_path_name,'output/table', 'train_ground_truth.csv')
 train_ground_truth[:,:2] = train_ground_truth[:,:2].astype(int)
 np.savetxt(train_ground_truth_file_path,train_ground_truth, fmt='%i,%i,%f',delimiter=',')
 valid_ground_truth[:,:2] = valid_ground_truth[:,:2].astype(int)
 #valid_ground_truth_file_path = os.path.join('../../data/kaggle/output','valid_ground_truth.csv')
 #valid_ground_truth_file_path = os.path.join('../../data/kaggle_partition/output','valid_ground_truth.csv')
 #valid_ground_truth_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','valid_ground_truth.csv')
-valid_ground_truth_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','valid_ground_truth.csv')
+valid_ground_truth_file_path = os.path.join('../../data', dataset_path_name, 'output/table','valid_ground_truth.csv')
 np.savetxt(valid_ground_truth_file_path,valid_ground_truth, fmt='%i,%i,%f',delimiter=',')
 
 ##save the second_level_data_map
 #output_second_data_map_file_path = os.path.join('../../data/kaggle/output','second_data_map.txt')
 #output_second_data_map_file_path = os.path.join('../../data/kaggle_partition/output','second_data_map.txt')
 #output_second_data_map_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','second_data_map.txt')
-output_second_data_map_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','second_data_map.txt')
+output_second_data_map_file_path = os.path.join('../../data', dataset_path_name, 'output/table','second_data_map.txt')
 output_second_data_map_file = open(output_second_data_map_file_path,'wb')
 pickle.dump(second_level_data_map,output_second_data_map_file)
 output_second_data_map_file.close()
@@ -979,7 +982,7 @@ print("the largest id is %d"%start)
 #output_train_file_path = os.path.join('../../data/kaggle/output', 'inductive_train.txt')
 #output_train_file_path = os.path.join('../../data/kaggle_partition/output', 'inductive_train.txt')
 #output_train_file_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'inductive_train.txt')
-output_train_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing', 'inductive_train.txt')
+output_train_file_path = os.path.join('../../data', dataset_path_name, 'output/table', 'inductive_train.txt')
 f=open(output_train_file_path, 'w')
 for items in train_edge_list:
     for i in range(len(items)):
@@ -992,7 +995,7 @@ f.close()
 #output_val_file_path = os.path.join('../../data/kaggle/output', 'inductive_val.txt')
 #output_val_file_path = os.path.join('../../data/kaggle_partition/output', 'inductive_val.txt')
 #output_val_file_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'inductive_val.txt')
-output_val_file_path = os.path.join('../../data',dataset_path_name, 'output/70-probing', 'inductive_val.txt')
+output_val_file_path = os.path.join('../../data',dataset_path_name, 'output/table', 'inductive_val.txt')
 f=open(output_val_file_path, 'w')
 for items in val_edge_list:
     for i in range(len(items)):
@@ -1006,7 +1009,7 @@ f.close()
 #output_test_file_path = os.path.join('../../data/kaggle/output', 'inductive_test.txt')
 #output_test_file_path = os.path.join('../../data/kaggle_partition/output', 'inductive_test.txt')
 #output_test_file_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'inductive_test.txt')
-output_test_file_path = os.path.join('../../data',dataset_path_name, 'output/70-probing', 'inductive_test.txt')
+output_test_file_path = os.path.join('../../data',dataset_path_name, 'output/table', 'inductive_test.txt')
 f=open(output_test_file_path, 'w')
 for items in test_edge_list:
     for i in range(len(items)):
@@ -1024,7 +1027,7 @@ f.close()
 #output_train_data_maps_file_path = os.path.join('../../data/kaggle/output','inductive_train_dict.txt')
 #output_train_data_maps_file_path = os.path.join('../../data/kaggle_partition/output','inductive_train_dict.txt')
 #output_train_data_maps_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','inductive_train_dict.txt')
-output_train_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','inductive_train_dict.txt')
+output_train_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/table','inductive_train_dict.txt')
 output_train_data_map_file = open(output_train_data_maps_file_path,'wb')
 pickle.dump(train_dict,output_train_data_map_file)
 output_train_data_map_file.close()
@@ -1032,7 +1035,7 @@ output_train_data_map_file.close()
 #output_val_data_maps_file_path = os.path.join('../../data/kaggle/output','inductive_val_dict.txt')
 #output_val_data_maps_file_path = os.path.join('../../data/kaggle_partition/output','inductive_val_dict.txt')
 #output_val_data_maps_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','inductive_val_dict.txt')
-output_val_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','inductive_val_dict.txt')
+output_val_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/table','inductive_val_dict.txt')
 output_val_data_map_file = open(output_val_data_maps_file_path,'wb')
 pickle.dump(val_dict,output_val_data_map_file)
 output_val_data_map_file.close()
@@ -1040,7 +1043,7 @@ output_val_data_map_file.close()
 #output_test_data_maps_file_path = os.path.join('../../data/kaggle/output','inductive_test_dict.txt')
 #output_test_data_maps_file_path = os.path.join('../../data/kaggle_partition/output','inductive_test_dict.txt')
 #output_test_data_maps_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','inductive_test_dict.txt')
-output_test_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','inductive_test_dict.txt')
+output_test_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/table','inductive_test_dict.txt')
 output_test_data_map_file = open(output_test_data_maps_file_path,'wb')
 pickle.dump(test_dict,output_test_data_map_file)
 output_test_data_map_file.close()
@@ -1274,7 +1277,7 @@ assert(sampled_test_edge_num==remaining_test_edges.shape[0])
 #output_sampled_train_data_maps_file_path = os.path.join('../../data/kaggle/output','initial_train_dict.txt')
 #output_sampled_train_data_maps_file_path = os.path.join('../../data/kaggle_partition/output','initial_train_dict.txt')
 #output_sampled_train_data_maps_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','initial_train_dict.txt')
-output_sampled_train_data_maps_file_path = os.path.join('../../data',dataset_path_name, 'output/70-probing','initial_train_dict.txt')
+output_sampled_train_data_maps_file_path = os.path.join('../../data',dataset_path_name, 'output/table','initial_train_dict.txt')
 output_sampled_train_data_map_file = open(output_sampled_train_data_maps_file_path,'wb')
 pickle.dump(sampled_train_dict,output_sampled_train_data_map_file)
 output_sampled_train_data_map_file.close()
@@ -1282,7 +1285,7 @@ output_sampled_train_data_map_file.close()
 #output_sampled_val_data_maps_file_path = os.path.join('../../data/kaggle/output','initial_val_dict.txt')
 #output_sampled_val_data_maps_file_path = os.path.join('../../data/kaggle_partition/output','initial_val_dict.txt')
 #output_sampled_val_data_maps_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','initial_val_dict.txt')
-output_sampled_val_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','initial_val_dict.txt')
+output_sampled_val_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/table','initial_val_dict.txt')
 output_sampled_val_data_map_file = open(output_sampled_val_data_maps_file_path,'wb')
 pickle.dump(sampled_val_dict,output_sampled_val_data_map_file)
 output_sampled_val_data_map_file.close()
@@ -1290,7 +1293,7 @@ output_sampled_val_data_map_file.close()
 #output_sampled_test_data_maps_file_path = os.path.join('../../data/kaggle/output','initial_test_dict.txt')
 #output_sampled_test_data_maps_file_path = os.path.join('../../data/kaggle_partition/output','initial_test_dict.txt')
 #output_sampled_test_data_maps_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','initial_test_dict.txt')
-output_sampled_test_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','initial_test_dict.txt')
+output_sampled_test_data_maps_file_path = os.path.join('../../data', dataset_path_name, 'output/table','initial_test_dict.txt')
 output_sampled_test_data_map_file = open(output_sampled_test_data_maps_file_path,'wb')
 pickle.dump(sampled_test_dict,output_sampled_test_data_map_file)
 output_sampled_test_data_map_file.close()
@@ -1302,7 +1305,7 @@ output_sampled_test_data_map_file.close()
 #output_train_file_path = os.path.join('../../data/kaggle/output', 'initial_train.txt')
 #output_train_file_path = os.path.join('../../data/kaggle_partition/output', 'initial_train.txt')
 #output_train_file_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'initial_train.txt')
-output_train_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing', 'initial_train.txt')
+output_train_file_path = os.path.join('../../data', dataset_path_name, 'output/table', 'initial_train.txt')
 f=open(output_train_file_path, 'w')
 for items in sampled_train_edge_list:
     for i in range(len(items)):
@@ -1315,7 +1318,7 @@ f.close()
 #output_val_file_path = os.path.join('../../data/kaggle/output', 'initial_val.txt')
 #output_val_file_path = os.path.join('../../data/kaggle_partition/output', 'initial_val.txt')
 #output_val_file_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'initial_val.txt')
-output_val_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing', 'initial_val.txt')
+output_val_file_path = os.path.join('../../data', dataset_path_name, 'output/table', 'initial_val.txt')
 f=open(output_val_file_path, 'w')
 for items in sampled_val_edge_list:
     for i in range(len(items)):
@@ -1329,7 +1332,7 @@ f.close()
 #output_test_file_path = os.path.join('../../data/kaggle/output', 'initial_test.txt')
 #output_test_file_path = os.path.join('../../data/kaggle_partition/output', 'initial_test.txt')
 #output_test_file_path = os.path.join('../../data/kaggle_ratio_0.2/output', 'initial_test.txt')
-output_test_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing', 'initial_test.txt')
+output_test_file_path = os.path.join('../../data', dataset_path_name, 'output/table', 'initial_test.txt')
 f=open(output_test_file_path, 'w')
 for items in sampled_test_edge_list:
     for i in range(len(items)):
@@ -1348,7 +1351,7 @@ test_ground_truth[:,:2] = test_ground_truth[:,:2].astype(int)
 #test_ground_truth_file_path = os.path.join('../../data/kaggle/output','test_ground_truth.csv')
 #test_ground_truth_file_path = os.path.join('../../data/kaggle_partition/output','test_ground_truth.csv')
 #test_ground_truth_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','test_ground_truth.csv')
-test_ground_truth_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','test_ground_truth.csv')
+test_ground_truth_file_path = os.path.join('../../data', dataset_path_name, 'output/table','test_ground_truth.csv')
 np.savetxt(test_ground_truth_file_path,test_ground_truth, fmt='%i,%i,%f',delimiter=',')
 
 for i in range(selected_ground_truth.shape[0]):
@@ -1359,7 +1362,7 @@ selected_ground_truth[:,:2] = selected_ground_truth[:,:2].astype(int)
 #output_ground_truth_file_path = os.path.join('../../data/kaggle/output','cutoff_ground_truth.csv')
 #output_ground_truth_file_path = os.path.join('../../data/kaggle_partition/output','cutoff_ground_truth.csv')
 #output_ground_truth_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','cutoff_ground_truth.csv')
-output_ground_truth_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','cutoff_ground_truth.csv')
+output_ground_truth_file_path = os.path.join('../../data', dataset_path_name, 'output/table','cutoff_ground_truth.csv')
 np.savetxt(output_ground_truth_file_path,selected_ground_truth, fmt='%i,%i,%f',delimiter=',')
 
 ###save the data_embedding and model_embedding with numpy
@@ -1367,14 +1370,14 @@ np.savetxt(output_ground_truth_file_path,selected_ground_truth, fmt='%i,%i,%f',d
 #output_data_embed_file_path = os.path.join('../../data/kaggle/output','data_embed.npy')
 #output_data_embed_file_path = os.path.join('../../data/kaggle_partition/output','data_embed.npy')
 #output_data_embed_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','data_embed.npy')
-output_data_embed_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','data_embed.npy')
+output_data_embed_file_path = os.path.join('../../data', dataset_path_name, 'output/table','data_embed.npy')
 np.save(output_data_embed_file_path,updated_data_embed)
 
 ##save data_map
 #output_data_map_file_path = os.path.join('../../data/kaggle/output','data_map.txt')
 #output_data_map_file_path = os.path.join('../../data/kaggle_partition/output','data_map.txt')
 #output_data_map_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','data_map.txt')
-output_data_map_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','data_map.txt')
+output_data_map_file_path = os.path.join('../../data', dataset_path_name, 'output/table','data_map.txt')
 output_data_map_file = open(output_data_map_file_path,'wb')
 pickle.dump(data_map,output_data_map_file)
 output_data_map_file.close()
@@ -1383,7 +1386,7 @@ output_data_map_file.close()
 #output_model_map_file_path = os.path.join('../../data/kaggle/output','model_map.txt')
 #output_model_map_file_path = os.path.join('../../data/kaggle_partition/output','model_map.txt')
 #output_model_map_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','model_map.txt')
-output_model_map_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','model_map.txt')
+output_model_map_file_path = os.path.join('../../data', dataset_path_name, 'output/table','model_map.txt')
 output_model_map_file = open(output_model_map_file_path,'wb')
 pickle.dump(model_map,output_model_map_file)
 #np.save(output_model_map_file_path,model_map)
@@ -1392,7 +1395,7 @@ output_model_map_file.close()
 #output_model_embed_file_path = os.path.join('../../data/kaggle/output','model_embed.npy')
 #output_model_embed_file_path = os.path.join('../../data/kaggle_partition/output','model_embed.npy')
 #output_model_embed_file_path = os.path.join('../../data/kaggle_ratio_0.2/output','model_embed.npy')
-output_model_embed_file_path = os.path.join('../../data', dataset_path_name, 'output/70-probing','model_embed.npy')
+output_model_embed_file_path = os.path.join('../../data', dataset_path_name, 'output/table','model_embed.npy')
 np.save(output_model_embed_file_path,model_embed)
 
 #save the running time of threshold processing
@@ -1412,7 +1415,7 @@ with open(os.path.join('../../data/kaggle_ratio_0.2/output', 'threshold_'+ str(t
     f.write(str(threshold_time))
 f.close()
 '''
-with open(os.path.join('../../data', dataset_path_name, 'output/70-probing', 'threshold_'+ str(threshold_score)+'_thresholdProcessing.txt'),'w')as f:
+with open(os.path.join('../../data', dataset_path_name, 'output/table', 'threshold_'+ str(threshold_score)+'_thresholdProcessing.txt'),'w')as f:
     f.write(str(threshold_time))
 f.close()
 
@@ -1432,7 +1435,7 @@ with open(os.path.join('../../data/kaggle_ratio_0.2/output', 'probing_budget_'+ 
     f.write(str(sum(knn_process_time)))
 f.close()
 '''
-with open(os.path.join('../../data', dataset_path_name,'output/70-probing', 'probing_budget_'+ str(total_budget)+'.txt'),'w')as f:
+with open(os.path.join('../../data', dataset_path_name,'output/table', 'probing_budget_'+ str(total_budget)+'.txt'),'w')as f:
     f.write(str(sum(knn_process_time)))
 f.close()
 
