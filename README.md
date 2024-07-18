@@ -2,11 +2,11 @@
 
 ## Interface
 
-![image](./Interface/model_upload.png)
+![image](./interface/model_upload.png)
 
-![image](./Interface/data_upload.png)
+![image](./interface/data_upload.png)
 
-![image](./Interface/model_search.png)
+![image](./interface/model_search.png)
 
 ## Environment
 
